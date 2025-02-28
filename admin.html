@@ -205,6 +205,9 @@
             let admins = [];
             let currentTicket = null;
             let editedData = {};
+            let currentPage = 1; // Añadida la declaración de currentPage
+
+            const ticketsPerPage = 10;
 
             window.showTicketDetails = function(ticketId) {
                 currentTicket = allTickets.find(ticket => ticket.id === ticketId);
