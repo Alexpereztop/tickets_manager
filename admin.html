@@ -138,6 +138,7 @@
                     <h3 class="text-lg font-bold text-gray-800 mb-2">Detalles del Ticket</h3>
                     <div id="modalContent" class="grid gap-2 text-sm"></div>
                     <div class="mt-4 flex justify-end gap-2">
+                        <button id="editModal" class="bg-blue-500 text-white p-1.5 rounded hover:bg-blue-600 transition duration-300 text-sm hidden">Editar</button>
                         <button id="closeModal" class="bg-gray-500 text-white p-1.5 rounded hover:bg-gray-600 transition duration-300 text-sm">Cerrar</button>
                         <button id="saveModal" class="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300 text-sm hidden">Guardar</button>
                         <button id="deleteModal" class="bg-red-500 text-white p-1.5 rounded hover:bg-red-600 transition duration-300 text-sm">Eliminar</button>
@@ -188,6 +189,7 @@
             const pagination = document.getElementById('pagination');
             const ticketModal = document.getElementById('ticketModal');
             const modalContent = document.getElementById('modalContent');
+            const editModal = document.getElementById('editModal');
             const closeModal = document.getElementById('closeModal');
             const saveModal = document.getElementById('saveModal');
             const deleteModal = document.getElementById('deleteModal');
@@ -205,8 +207,7 @@
             let admins = [];
             let currentTicket = null;
             let editedData = {};
-            let currentPage = 1; // Añadida la declaración de currentPage
-
+            let currentPage = 1; // Asegúrate de que currentPage esté definida
             const ticketsPerPage = 10;
 
             window.showTicketDetails = function(ticketId) {
@@ -214,13 +215,16 @@
                 if (currentTicket) {
                     displayModal(currentTicket, false);
                     ticketModal.style.display = 'block';
+                    editModal.classList.remove('hidden'); // Mostrar botón "Editar" en modo no edición
+                    saveModal.classList.add('hidden'); // Ocultar "Guardar" en modo no edición
                 }
             };
 
-            window.editModal = function() {
+            window.editModalHandler = function() {
                 if (currentTicket) {
                     displayModal(currentTicket, true);
-                    saveModal.classList.remove('hidden');
+                    editModal.classList.add('hidden'); // Ocultar "Editar" en modo edición
+                    saveModal.classList.remove('hidden'); // Mostrar "Guardar" en modo edición
                 }
             };
 
@@ -228,6 +232,7 @@
                 ticketModal.style.display = 'none';
                 currentTicket = null;
                 editedData = {};
+                editModal.classList.add('hidden');
                 saveModal.classList.add('hidden');
             }
 
@@ -265,6 +270,7 @@
             }
 
             closeModal.addEventListener('click', closeModalHandler);
+            editModal.addEventListener('click', editModalHandler);
             saveModal.addEventListener('click', saveModalChanges);
             deleteModal.addEventListener('click', () => deleteTicket(currentTicket.id));
 
@@ -517,6 +523,21 @@
                 } catch (error) {
                     console.error('Error al actualizar el ticket:', error);
                     throw error;
+                }
+            }
+
+            async function deleteTicket(ticketId) {
+                if (confirm('¿Estás seguro de que deseas eliminar este ticket?')) {
+                    try {
+                        const ticketRef = doc(db, 'tickets', ticketId);
+                        await deleteDoc(ticketRef);
+                        showMessage('¡Ticket eliminado con éxito!', 'text-green-500');
+                        applyFiltersAndPagination();
+                        closeModalHandler();
+                    } catch (error) {
+                        showMessage(`Error al eliminar el ticket: ${error.message}`, 'text-red-500');
+                        console.error('Error al eliminar el ticket:', error);
+                    }
                 }
             }
 
