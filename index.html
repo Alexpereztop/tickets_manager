@@ -20,9 +20,9 @@
             </div>
             <div class="hidden md:flex space-x-6">
                 <a href="#" id="homeLink" class="nav-link text-gray-600">Inicio</a>
-                <a href="./client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
-                <a href="./admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
-                <a href="./profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
+                <a href="#" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
+                <a href="#" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
+                <a href="#" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
                 <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
             </div>
             <div class="md:hidden">
@@ -33,9 +33,9 @@
         </div>
         <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
             <a href="#" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link">Inicio</a>
-            <a href="./client.html" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
-            <a href="./admin.html" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
-            <a href="./profile.html" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
+            <a href="#" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
+            <a href="#" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
+            <a href="#" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
             <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
         </div>
     </nav>
@@ -125,9 +125,12 @@
                 });
             }
 
+            if (logoutLink) logoutLink.addEventListener('click', () => signOut(auth));
+            if (logoutLinkMobile) logoutLinkMobile.addEventListener('click', () => signOut(auth));
+
             let isLoginMode = true;
 
-            if (toggleForm) toggleForm.addEventListener('click', () => {
+            toggleForm.addEventListener('click', () => {
                 isLoginMode = !isLoginMode;
                 roleSection.classList.toggle('hidden');
                 loginBtn.classList.toggle('hidden');
@@ -136,37 +139,38 @@
                 authMessage.classList.add('hidden');
             });
 
-            if (loginBtn) loginBtn.addEventListener('click', () => {
-                const email = emailInput.value;
-                const password = passwordInput.value;
-                signInWithEmailAndPassword(auth, email, password)
-                    .then(async (userCredential) => {
-                        const user = userCredential.user;
-                        const userDoc = await getDoc(doc(db, 'users', user.uid));
-                        const role = userDoc.exists() ? userDoc.data().role : 'client';
-                        showMessage('¡Inicio de sesión exitoso!', 'text-green-500');
-                        setTimeout(() => {
-                            window.location.href = role === 'admin' ? './admin.html' : './client.html';
-                        }, 1000);
-                    })
-                    .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
-            });
+            if (loginBtn) {
+                loginBtn.addEventListener('click', () => {
+                    const email = emailInput.value;
+                    const password = passwordInput.value;
+                    signInWithEmailAndPassword(auth, email, password)
+                        .then(async (userCredential) => {
+                            const user = userCredential.user;
+                            const userDoc = await getDoc(doc(db, 'users', user.uid));
+                            const role = userDoc.exists() ? userDoc.data().role : 'client';
+                            showMessage('¡Inicio de sesión exitoso!', 'text-green-500');
+                            setTimeout(() => {
+                                window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
+                            }, 1000);
+                        })
+                        .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
+                });
+            }
 
-            if (registerBtn) registerBtn.addEventListener('click', () => {
-                const email = emailInput.value;
-                const password = passwordInput.value;
-                const role = roleSelect.value;
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then(userCredential => {
-                        const user = userCredential.user;
-                        return setDoc(doc(db, 'users', user.uid), { email, role });
-                    })
-                    .then(() => showMessage('¡Registro exitoso! Inicia sesión.', 'text-green-500'))
-                    .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
-            });
-
-            if (logoutLink) logoutLink.addEventListener('click', () => signOut(auth));
-            if (logoutLinkMobile) logoutLinkMobile.addEventListener('click', () => signOut(auth));
+            if (registerBtn) {
+                registerBtn.addEventListener('click', () => {
+                    const email = emailInput.value;
+                    const password = passwordInput.value;
+                    const role = roleSelect.value;
+                    createUserWithEmailAndPassword(auth, email, password)
+                        .then(userCredential => {
+                            const user = userCredential.user;
+                            return setDoc(doc(db, 'users', user.uid), { email, role });
+                        })
+                        .then(() => showMessage('¡Registro exitoso! Inicia sesión.', 'text-green-500'))
+                        .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
+                });
+            }
 
             onAuthStateChanged(auth, async user => {
                 if (user) {
@@ -180,11 +184,11 @@
                     adminLinkMobile.classList.toggle('hidden', role !== 'admin');
                     profileLinkMobile.classList.remove('hidden');
                     logoutLinkMobile.classList.remove('hidden');
-                    clientLink.href = './client.html';
-                    adminLink.href = './admin.html';
-                    profileLink.href = './profile.html';
+                    clientLink.href = 'client.html';
+                    adminLink.href = 'admin.html';
+                    profileLink.href = 'profile.html';
                     if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-                        window.location.href = role === 'admin' ? './admin.html' : './client.html';
+                        window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
                     }
                 } else {
                     clientLink.classList.add('hidden');
@@ -199,11 +203,9 @@
             });
 
             function showMessage(text, className) {
-                if (authMessage) {
-                    authMessage.textContent = text;
-                    authMessage.className = `text-center text-sm mb-4 ${className}`;
-                    authMessage.classList.remove('hidden');
-                }
+                authMessage.textContent = text;
+                authMessage.className = `text-center text-sm mb-4 ${className}`;
+                authMessage.classList.remove('hidden');
             }
         });
     </script>
