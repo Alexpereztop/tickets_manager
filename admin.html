@@ -148,6 +148,7 @@
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const userData = userDoc.exists() ? userDoc.data() : {};
                     const role = userData.role || 'client';
+                    console.log('Rol del usuario en admin.html:', role); // Depuración
 
                     clientLink.classList.toggle('hidden', role !== 'client');
                     adminLink.classList.toggle('hidden', role !== 'admin');
@@ -171,7 +172,8 @@
                 const usersSnapshot = await getDocs(collection(db, 'users'));
                 admins = usersSnapshot.docs
                     .filter(doc => doc.data().role === 'admin')
-                    .map(doc => ({ id: doc.id, email: doc.data().email }));
+                    .map(doc => ({ id: doc.id, email: doc.data().email || 'Sin email' }));
+                console.log('Administradores cargados:', admins); // Depuración
             }
 
             function loadTickets() {
