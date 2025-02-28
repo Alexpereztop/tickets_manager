@@ -99,7 +99,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBZePWGqYeBApjnH5TM288hK4FrUqzj8lg",
@@ -148,7 +148,7 @@
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const userData = userDoc.exists() ? userDoc.data() : {};
                     const role = userData.role || 'client';
-                    console.log('Rol del usuario en admin.html:', role); // Depuración
+                    console.log('Rol del usuario en admin.html:', role);
 
                     clientLink.classList.toggle('hidden', role !== 'client');
                     adminLink.classList.toggle('hidden', role !== 'admin');
@@ -173,7 +173,7 @@
                 admins = usersSnapshot.docs
                     .filter(doc => doc.data().role === 'admin')
                     .map(doc => ({ id: doc.id, email: doc.data().email || 'Sin email' }));
-                console.log('Administradores cargados:', admins); // Depuración
+                console.log('Administradores cargados:', admins);
             }
 
             function loadTickets() {
