@@ -7,19 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        .fade-in { animation: fadeIn 0.5s ease-in; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
-        .cards-container { max-height: 500px; overflow-y: auto; overflow-x: hidden; max-width: 100%; display: grid; gap: 0.25rem; padding: 0.25rem; }
-        .card { background-color: white; border-radius: 0.375rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); padding: 0.5rem; transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out; font-size: 0.875rem; } /* text-sm */
-        .card.collapsed { max-height: 120px; overflow: hidden; }
-        .card.expanded { max-height: 300px; padding: 0.75rem; }
-        .card-content { display: grid; gap: 0.125rem; }
-        .edit-mode .editable { background-color: #f0f9ff; }
-        .pagination { display: flex; justify-content: center; gap: 0.25rem; margin-top: 0.5rem; }
-        .pagination button { padding: 0.375rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background-color: #fff; cursor: pointer; font-size: 0.75rem; } /* text-xs */
-        .pagination button:disabled { background-color: #e5e7eb; cursor: not-allowed; }
-        .pagination button.active { background-color: #3b82f6; color: white; }
+        .table-container { max-height: 500px; overflow-y: auto; overflow-x: hidden; max-width: 100%; }
+        .table { width: 100%; border-collapse: collapse; font-size: 0.875rem; } /* text-sm */
+        th, td { padding: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+        th { background-color: #f3f4f6; text-align: left; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; }
+        .modal-content { background-color: white; margin: 5% auto; padding: 1rem; border-radius: 0.5rem; max-width: 500px; width: 90%; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); animation: fadeIn 0.3s ease-in; }
+        .modal-content .editable { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem; }
         .status-nuevo { color: #ef4444; } /* Rojo */
         .status-en-progreso { color: #facc15; } /* Amarillo */
         .status-resuelto { color: #22c55e; } /* Verde */
@@ -27,15 +24,15 @@
         .priority-media { color: #facc15; } /* Amarillo */
         .priority-baja { color: #22c55e; } /* Verde */
         @media (max-width: 1024px) {
-            .cards-container { grid-template-columns: repeat(2, 1fr); gap: 0.125rem; padding: 0.125rem; }
-            .card { padding: 0.375rem; max-height: 100px; }
-            .card.expanded { max-height: 250px; padding: 0.5rem; }
+            .table { display: grid; grid-template-columns: repeat(2, 1fr); }
+            th, td { padding: 0.375rem; }
+            th:nth-child(1), td:nth-child(1) { grid-column: span 2; }
         }
         @media (max-width: 768px) {
-            .cards-container { grid-template-columns: 1fr; gap: 0.125rem; padding: 0.125rem; }
-            .card { padding: 0.25rem; max-height: 80px; font-size: 0.75rem; } /* text-xs */
-            .card.expanded { max-height: 200px; padding: 0.375rem; }
+            .table { grid-template-columns: 1fr; }
+            th, td { padding: 0.25rem; font-size: 0.75rem; } /* text-xs */
             .grid-cols-5 { grid-template-columns: repeat(2, 1fr); }
+            .modal-content { max-width: 90%; width: 95%; margin: 10% auto; }
         }
     </style>
 </head>
@@ -118,17 +115,42 @@
                 </div>
             </div>
             <p id="adminMessage" class="text-sm text-center mb-1.5 hidden"></p>
-            <div class="cards-container">
-                <div id="ticketCards" class="grid gap-0.25rem"></div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="w-1/5">Título</th>
+                            <th class="w-1/5">Fecha de Reporte</th>
+                            <th class="w-1/5">Email</th>
+                            <th class="w-1/5">Estado</th>
+                            <th class="w-1/5">Prioridad</th>
+                            <th class="w-1/5">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTable"></tbody>
+                </table>
             </div>
             <div id="pagination" class="pagination"></div>
+
+            <!-- Modal para Detalles -->
+            <div id="ticketModal" class="modal">
+                <div class="modal-content">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Detalles del Ticket</h3>
+                    <div id="modalContent" class="grid gap-2 text-sm"></div>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button id="closeModal" class="bg-gray-500 text-white p-1.5 rounded hover:bg-gray-600 transition duration-300 text-sm">Cerrar</button>
+                        <button id="saveModal" class="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300 text-sm hidden">Guardar</button>
+                        <button id="deleteModal" class="bg-red-500 text-white p-1.5 rounded hover:bg-red-600 transition duration-300 text-sm">Eliminar</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBZePWGqYeBApjnH5TM288hK4FrUqzj8lg",
@@ -144,7 +166,7 @@
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', () => {
-            const ticketCards = document.getElementById('ticketCards');
+            const ticketTable = document.getElementById('ticketTable');
             const adminMessage = document.getElementById('adminMessage');
             const statusFilter = document.getElementById('statusFilter');
             const priorityFilter = document.getElementById('priorityFilter');
@@ -164,6 +186,11 @@
             const menuToggle = document.getElementById('menuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
             const pagination = document.getElementById('pagination');
+            const ticketModal = document.getElementById('ticketModal');
+            const modalContent = document.getElementById('modalContent');
+            const closeModal = document.getElementById('closeModal');
+            const saveModal = document.getElementById('saveModal');
+            const deleteModal = document.getElementById('deleteModal');
 
             if (menuToggle) {
                 menuToggle.addEventListener('click', () => {
@@ -176,31 +203,67 @@
 
             let allTickets = [];
             let admins = [];
-            let editedTickets = {};
-            let currentPage = 1;
-            const ticketsPerPage = 10;
+            let currentTicket = null;
+            let editedData = {};
 
-            window.editTicket = function(ticketId) {
-                editedTickets[ticketId] = true;
-                const card = document.querySelector(`div[data-id="${ticketId}"]`);
-                if (card) {
-                    card.classList.add('expanded');
-                    card.classList.remove('collapsed');
-                }
-                applyFiltersAndPagination();
-            };
-
-            window.saveChanges = function(ticketId) {
-                saveChanges(ticketId);
-            };
-
-            window.toggleCard = function(ticketId) {
-                const card = document.querySelector(`div[data-id="${ticketId}"]`);
-                if (card) {
-                    card.classList.toggle('expanded');
-                    card.classList.toggle('collapsed');
+            window.showTicketDetails = function(ticketId) {
+                currentTicket = allTickets.find(ticket => ticket.id === ticketId);
+                if (currentTicket) {
+                    displayModal(currentTicket, false);
+                    ticketModal.style.display = 'block';
                 }
             };
+
+            window.editModal = function() {
+                if (currentTicket) {
+                    displayModal(currentTicket, true);
+                    saveModal.classList.remove('hidden');
+                }
+            };
+
+            function closeModalHandler() {
+                ticketModal.style.display = 'none';
+                currentTicket = null;
+                editedData = {};
+                saveModal.classList.add('hidden');
+            }
+
+            function saveModalChanges() {
+                if (currentTicket && editedData.status && editedData.priority && editedData.assigned_to !== undefined) {
+                    updateTicket(currentTicket.id, {
+                        status: editedData.status,
+                        priority: editedData.priority,
+                        assigned_to: editedData.assigned_to || '',
+                        updated_at: new Date().toISOString()
+                    }).then(() => {
+                        showMessage('¡Cambios guardados con éxito!', 'text-green-500');
+                        closeModalHandler();
+                        applyFiltersAndPagination();
+                    }).catch(error => {
+                        showMessage(`Error al guardar cambios: ${error.message}`, 'text-red-500');
+                        console.error('Error al guardar cambios:', error);
+                    });
+                }
+            }
+
+            async function deleteTicket(ticketId) {
+                if (confirm('¿Estás seguro de que deseas eliminar este ticket?')) {
+                    try {
+                        const ticketRef = doc(db, 'tickets', ticketId);
+                        await deleteDoc(ticketRef);
+                        showMessage('¡Ticket eliminado con éxito!', 'text-green-500');
+                        applyFiltersAndPagination();
+                        closeModalHandler();
+                    } catch (error) {
+                        showMessage(`Error al eliminar el ticket: ${error.message}`, 'text-red-500');
+                        console.error('Error al eliminar el ticket:', error);
+                    }
+                }
+            }
+
+            closeModal.addEventListener('click', closeModalHandler);
+            saveModal.addEventListener('click', saveModalChanges);
+            deleteModal.addEventListener('click', () => deleteTicket(currentTicket.id));
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -321,13 +384,12 @@
             }
 
             function displayPage(tickets, page) {
-                ticketCards.innerHTML = '';
+                ticketTable.innerHTML = '';
                 const start = (page - 1) * ticketsPerPage;
                 const end = start + ticketsPerPage;
                 const paginatedTickets = tickets.slice(start, end);
 
                 paginatedTickets.forEach(ticket => {
-                    const isEditing = editedTickets[ticket.id] || false;
                     const statusClass = `status-${ticket.status.toLowerCase().replace(' ', '-')}`;
                     const priorityClass = `priority-${ticket.priority.toLowerCase().replace(' ', '-')}`;
                     const statusIcon = ticket.status === 'nuevo' ? 'fa-circle-exclamation' : 
@@ -335,71 +397,21 @@
                     const priorityIcon = ticket.priority === 'alta' ? 'fa-triangle-exclamation' : 
                                         ticket.priority === 'media' ? 'fa-exclamation' : 'fa-check';
 
-                    // Determinar si está expandida (por edición o manualmente)
-                    const isExpanded = isEditing || document.querySelector(`div[data-id="${ticket.id}"]`)?.classList?.contains('expanded');
-
-                    const card = `
-                        <div class="card ${isExpanded ? 'expanded' : 'collapsed'}" data-id="${ticket.id}">
-                            <div class="card-content">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-800 font-medium">${ticket.title}</span>
-                                    ${!isEditing ? `<button onclick="toggleCard('${ticket.id}')" class="bg-blue-500 text-white p-0.75 rounded hover:bg-blue-600 transition duration-300 text-xs"><i class="fas fa-expand mr-0.5"></i></button>` : ''}
-                                </div>
-                                <div><strong class="text-gray-600">Fecha de Reporte:</strong> <span class="text-gray-800">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</span></div>
-                                <div><strong class="text-gray-600">Email:</strong> <span class="text-gray-800">${ticket.email}</span></div>
-                                <div><strong class="text-gray-600">Estado:</strong> 
-                                    <span class="inline-flex items-center"><span class="text-sm text-gray-800">${ticket.status}</span> <i class="fas ${statusIcon} ${statusClass} ml-1 text-sm"></i></span>
-                                </div>
-                                <div><strong class="text-gray-600">Prioridad:</strong> 
-                                    <span class="inline-flex items-center"><span class="text-sm text-gray-800">${ticket.priority}</span> <i class="fas ${priorityIcon} ${priorityClass} ml-1 text-sm"></i></span>
-                                </div>
-                                ${isExpanded || isEditing ? `
-                                    <div><strong class="text-gray-600">Descripción:</strong> <span class="text-gray-800">${ticket.description}</span></div>
-                                    <div><strong class="text-gray-600">Categoría:</strong> <span class="text-gray-800">${ticket.category}</span></div>
-                                    <div><strong class="text-gray-600">Usuario (Nombre):</strong> <span class="text-gray-800">${ticket.username}</span></div>
-                                    <div><strong class="text-gray-600">Asignado a:</strong> 
-                                        ${isEditing ? `
-                                            <select class="editable p-1 border rounded text-sm" data-field="assigned_to">
-                                                <option value="">Sin asignar</option>
-                                                ${admins.map(admin => `<option value="${admin.id}" ${ticket.assigned_to === admin.id ? 'selected' : ''}>${admin.email}</option>`).join('')}
-                                            </select>
-                                        ` : ticket.assigned_to ? `<span class="text-gray-800">${admins.find(a => a.id === ticket.assigned_to)?.email || 'Sin asignar'}</span>` : '<span class="text-gray-800">Sin asignar</span>'}
-                                    </div>
-                                    <div><strong class="text-gray-600">Creado:</strong> <span class="text-gray-800">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</span></div>
-                                    <div><strong class="text-gray-600">Actualizado:</strong> <span class="text-gray-800">${ticket.updated_at ? new Date(ticket.updated_at).toLocaleString() : 'N/A'}</span></div>
-                                    <div class="flex justify-end">
-                                        ${isEditing ? 
-                                            `<button class="bg-green-500 text-white p-1 rounded hover:bg-green-600 transition duration-300 save-btn" data-id="${ticket.id}"><i class="fas fa-save mr-0.5 text-sm"></i> Guardar</button>` :
-                                            `<button class="bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition duration-300 edit-btn" data-id="${ticket.id}"><i class="fas fa-edit mr-0.5 text-sm"></i> Editar</button>`
-                                        }
-                                    </div>
-                                ` : `
-                                    <div class="flex justify-between items-center mt-0.5">
-                                        <span class="text-gray-800 text-sm">${ticket.description.substring(0, 50) + (ticket.description.length > 50 ? '...' : '')}</span>
-                                    </div>
-                                `}
-                            </div>
-                        </div>
+                    const row = `
+                        <tr>
+                            <td class="w-1/5">${ticket.title}</td>
+                            <td class="w-1/5">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</td>
+                            <td class="w-1/5">${ticket.email}</td>
+                            <td class="w-1/5"><span class="inline-flex items-center"><span class="text-sm">${ticket.status}</span> <i class="fas ${statusIcon} ${statusClass} ml-1"></i></span></td>
+                            <td class="w-1/5"><span class="inline-flex items-center"><span class="text-sm">${ticket.priority}</span> <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></span></td>
+                            <td class="w-1/5"><button onclick="showTicketDetails('${ticket.id}')" class="bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-eye mr-0.5"></i> Ver Detalles</button></td>
+                        </tr>
                     `;
-                    ticketCards.insertAdjacentHTML('beforeend', card);
+                    ticketTable.insertAdjacentHTML('beforeend', row);
                 });
                 if (paginatedTickets.length === 0) {
-                    ticketCards.innerHTML = '<div class="text-center text-gray-500 text-sm">No hay tickets que coincidan con los filtros.</div>';
+                    ticketTable.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 text-sm">No hay tickets que coincidan con los filtros.</td></tr>';
                 }
-
-                // Añadir eventos dinámicos después de renderizar (solo para los botones "Editar" y "Guardar" en modo edición)
-                document.querySelectorAll('.edit-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const ticketId = btn.getAttribute('data-id');
-                        editTicket(ticketId);
-                    });
-                });
-                document.querySelectorAll('.save-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const ticketId = btn.getAttribute('data-id');
-                        saveChanges(ticketId);
-                    });
-                });
             }
 
             function updatePagination(tickets) {
@@ -447,67 +459,61 @@
                 pagination.appendChild(nextButton);
             }
 
-            function editTicket(ticketId) {
-                editedTickets[ticketId] = true;
-                const card = document.querySelector(`div[data-id="${ticketId}"]`);
-                if (card) {
-                    card.classList.add('expanded');
-                    card.classList.remove('collapsed');
+            function displayModal(ticket, isEditing) {
+                modalContent.innerHTML = `
+                    <div><strong class="text-gray-600">Título:</strong> <span class="text-gray-800">${ticket.title}</span></div>
+                    <div><strong class="text-gray-600">Descripción:</strong> <span class="text-gray-800">${ticket.description}</span></div>
+                    <div><strong class="text-gray-600">Estado:</strong> 
+                        ${isEditing ? `
+                            <select class="editable p-1 border rounded text-sm" data-field="status">
+                                <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo <i class="fas fa-circle-exclamation ${ticket.status === 'nuevo' ? 'status-nuevo' : ''} ml-1 text-sm"></i></option>
+                                <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso <i class="fas fa-spinner ${ticket.status === 'en progreso' ? 'status-en-progreso' : ''} ml-1 text-sm"></i></option>
+                                <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto <i class="fas fa-check-circle ${ticket.status === 'resuelto' ? 'status-resuelto' : ''} ml-1 text-sm"></i></option>
+                            </select>
+                        ` : `<span class="inline-flex items-center"><span class="text-sm text-gray-800">${ticket.status}</span> <i class="fas ${ticket.status === 'nuevo' ? 'fa-circle-exclamation status-nuevo' : ticket.status === 'en progreso' ? 'fa-spinner status-en-progreso' : 'fa-check-circle status-resuelto'} ml-1 text-sm"></i></span>`}
+                    </div>
+                    <div><strong class="text-gray-600">Prioridad:</strong> 
+                        ${isEditing ? `
+                            <select class="editable p-1 border rounded text-sm" data-field="priority">
+                                <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja <i class="fas fa-check ${ticket.priority === 'baja' ? 'priority-baja' : ''} ml-1 text-sm"></i></option>
+                                <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media <i class="fas fa-exclamation ${ticket.priority === 'media' ? 'priority-media' : ''} ml-1 text-sm"></i></option>
+                                <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta <i class="fas fa-triangle-exclamation ${ticket.priority === 'alta' ? 'priority-alta' : ''} ml-1 text-sm"></i></option>
+                            </select>
+                        ` : `<span class="inline-flex items-center"><span class="text-sm text-gray-800">${ticket.priority}</span> <i class="fas ${ticket.priority === 'alta' ? 'fa-triangle-exclamation priority-alta' : ticket.priority === 'media' ? 'fa-exclamation priority-media' : 'fa-check priority-baja'} ml-1 text-sm"></i></span>`}
+                    </div>
+                    <div><strong class="text-gray-600">Categoría:</strong> <span class="text-gray-800">${ticket.category}</span></div>
+                    <div><strong class="text-gray-600">Usuario (Nombre):</strong> <span class="text-gray-800">${ticket.username}</span></div>
+                    <div><strong class="text-gray-600">Correo:</strong> <span class="text-gray-800">${ticket.email}</span></div>
+                    <div><strong class="text-gray-600">Asignado a:</strong> 
+                        ${isEditing ? `
+                            <select class="editable p-1 border rounded text-sm" data-field="assigned_to">
+                                <option value="">Sin asignar</option>
+                                ${admins.map(admin => `<option value="${admin.id}" ${ticket.assigned_to === admin.id ? 'selected' : ''}>${admin.email}</option>`).join('')}
+                            </select>
+                        ` : ticket.assigned_to ? `<span class="text-gray-800">${admins.find(a => a.id === ticket.assigned_to)?.email || 'Sin asignar'}</span>` : '<span class="text-gray-800">Sin asignar</span>'}
+                    </div>
+                    <div><strong class="text-gray-600">Creado:</strong> <span class="text-gray-800">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</span></div>
+                    <div><strong class="text-gray-600">Actualizado:</strong> <span class="text-gray-800">${ticket.updated_at ? new Date(ticket.updated_at).toLocaleString() : 'N/A'}</span></div>
+                `;
+
+                if (isEditing) {
+                    document.querySelectorAll('.editable').forEach(element => {
+                        element.addEventListener('change', (e) => {
+                            editedData[e.target.dataset.field] = e.target.value;
+                        });
+                    });
+                } else {
+                    editedData = {};
                 }
-                applyFiltersAndPagination();
             }
 
-            async function saveChanges(ticketId) {
-                const card = document.querySelector(`div[data-id="${ticketId}"]`);
-                if (!card) {
-                    showMessage('No se encontró la tarjeta del ticket.', 'text-red-500');
-                    return;
-                }
-
-                const statusSelect = card.querySelector('.editable[data-field="status"]');
-                const prioritySelect = card.querySelector('.editable[data-field="priority"]');
-                const assignedSelect = card.querySelector('.editable[data-field="assigned_to"]');
-
-                if (!statusSelect || !prioritySelect || !assignedSelect) {
-                    showMessage('No se encontraron los campos editables.', 'text-red-500');
-                    console.error('Faltan selectores en la tarjeta:', card.innerHTML);
-                    return;
-                }
-
-                const changes = {
-                    status: statusSelect.value,
-                    priority: prioritySelect.value,
-                    assigned_to: assignedSelect.value || '',
-                    updated_at: new Date().toISOString()
-                };
-
+            async function updateTicket(ticketId, changes) {
                 try {
                     const ticketRef = doc(db, 'tickets', ticketId);
                     await updateDoc(ticketRef, changes);
-                    showMessage('¡Cambios guardados con éxito!', 'text-green-500');
-                    editedTickets[ticketId] = false;
-                    const card = document.querySelector(`div[data-id="${ticketId}"]`);
-                    if (card) {
-                        card.classList.add('collapsed');
-                        card.classList.remove('expanded');
-                    }
-                    applyFiltersAndPagination();
                 } catch (error) {
-                    showMessage(`Error al guardar cambios: ${error.message}`, 'text-red-500');
-                    console.error('Error al guardar cambios:', error);
-                }
-            }
-
-            async function updateTicket(ticketId, field, value) {
-                try {
-                    const ticketRef = doc(db, 'tickets', ticketId);
-                    await updateDoc(ticketRef, {
-                        [field]: value,
-                        updated_at: new Date().toISOString()
-                    });
-                    showMessage('¡Ticket actualizado con éxito!', 'text-green-500');
-                } catch (error) {
-                    showMessage(`Error: ${error.message}`, 'text-red-500');
+                    console.error('Error al actualizar el ticket:', error);
+                    throw error;
                 }
             }
 
