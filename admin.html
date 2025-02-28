@@ -10,12 +10,17 @@
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
-        .table-container { max-height: 500px; overflow-y: auto; }
+        .table-container { max-height: 500px; overflow-y: auto; overflow-x: auto; } /* Añadido overflow-x: auto para scroll horizontal si es necesario */
         .edit-mode .editable { background-color: #f0f9ff; }
         .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; }
         .pagination button { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background-color: #fff; cursor: pointer; }
         .pagination button:disabled { background-color: #e5e7eb; cursor: not-allowed; }
         .pagination button.active { background-color: #3b82f6; color: white; }
+        /* Ajustar columnas para responsividad */
+        @media (max-width: 1024px) {
+            .table-container table { min-width: 100%; }
+            .table-container th, .table-container td { min-width: 150px; white-space: nowrap; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -327,13 +332,13 @@
 
                 // Añadir eventos dinámicos después de renderizar
                 document.querySelectorAll('.edit-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
                         const ticketId = btn.getAttribute('data-id');
                         editTicket(ticketId);
                     });
                 });
                 document.querySelectorAll('.save-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
                         const ticketId = btn.getAttribute('data-id');
                         saveChanges(ticketId);
                     });
@@ -388,11 +393,19 @@
 
             async function saveChanges(ticketId) {
                 const row = document.querySelector(`tr[data-id="${ticketId}"]`);
-                if (!row) return;
+                if (!row) {
+                    showMessage('No se encontró la fila del ticket.', 'text-red-500');
+                    return;
+                }
 
                 const statusSelect = row.querySelector('select:nth-child(4)');
                 const prioritySelect = row.querySelector('select:nth-child(5)');
                 const assignedSelect = row.querySelector('select:nth-child(9)');
+
+                if (!statusSelect || !prioritySelect || !assignedSelect) {
+                    showMessage('No se encontraron los campos editables.', 'text-red-500');
+                    return;
+                }
 
                 const changes = {
                     status: statusSelect.value,
