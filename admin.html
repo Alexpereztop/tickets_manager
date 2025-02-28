@@ -367,6 +367,108 @@
                 saveModal.classList.add('hidden');
             }
 
+            function applyFiltersAndPagination() {
+                const status = statusFilter ? statusFilter.value : '';
+                const priority = priorityFilter ? priorityFilter.value : '';
+                const category = categoryFilter ? categoryFilter.value : '';
+                const username = usernameFilter ? usernameFilter.value.toLowerCase() : '';
+                const email = emailFilter ? emailFilter.value.toLowerCase() : '';
+                const createdAt = createdAtFilter ? createdAtFilter.value : '';
+                const updatedAt = updatedAtFilter ? updatedAtFilter.value : '';
+
+                const filteredTickets = allTickets.filter(ticket => {
+                    const matchesStatus = !status || ticket.status === status;
+                    const matchesPriority = !priority || ticket.priority === priority;
+                    const matchesCategory = !category || ticket.category === category;
+                    const matchesUsername = !username || ticket.username.toLowerCase().includes(username);
+                    const matchesEmail = !email || ticket.email.toLowerCase().includes(email);
+                    const matchesCreatedAt = !createdAt || new Date(ticket.created_at).toISOString().split('T')[0] === createdAt;
+                    const matchesUpdatedAt = !updatedAt || new Date(ticket.updated_at).toISOString().split('T')[0] === updatedAt;
+
+                    return matchesStatus && matchesPriority && matchesCategory && matchesUsername && matchesEmail && matchesCreatedAt && matchesUpdatedAt;
+                });
+
+                console.log('Tickets filtrados:', filteredTickets.length);
+                displayPage(filteredTickets, currentPage);
+                updatePagination(filteredTickets);
+            }
+
+            function displayPage(tickets, page) {
+                ticketTable.innerHTML = '';
+                const start = (page - 1) * ticketsPerPage;
+                const end = start + ticketsPerPage;
+                const paginatedTickets = tickets.slice(start, end);
+
+                paginatedTickets.forEach(ticket => {
+                    const statusClass = `status-${ticket.status.toLowerCase().replace(' ', '-')}`;
+                    const priorityClass = `priority-${ticket.priority.toLowerCase().replace(' ', '-')}`;
+                    const statusIcon = ticket.status === 'nuevo' ? 'fa-circle-exclamation' : 
+                                      ticket.status === 'en progreso' ? 'fa-spinner' : 'fa-check-circle';
+                    const priorityIcon = ticket.priority === 'alta' ? 'fa-triangle-exclamation' : 
+                                        ticket.priority === 'media' ? 'fa-exclamation' : 'fa-check';
+
+                    const row = `
+                        <tr>
+                            <td class="w-1/5">${ticket.title}</td>
+                            <td class="w-1/5">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</td>
+                            <td class="w-1/5">${ticket.email}</td>
+                            <td class="w-1/5"><span class="inline-flex items-center"><span class="text-sm">${ticket.status}</span> <i class="fas ${statusIcon} ${statusClass} ml-1"></i></span></td>
+                            <td class="w-1/5"><span class="inline-flex items-center"><span class="text-sm">${ticket.priority}</span> <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></span></td>
+                            <td class="w-1/5"><button onclick="showTicketDetails('${ticket.id}')" class="bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-eye mr-0.5"></i> Ver Detalles</button></td>
+                        </tr>
+                    `;
+                    ticketTable.insertAdjacentHTML('beforeend', row);
+                });
+                if (paginatedTickets.length === 0) {
+                    ticketTable.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 text-sm">No hay tickets que coincidan con los filtros.</td></tr>';
+                }
+            }
+
+            function updatePagination(tickets) {
+                const totalPages = Math.ceil(tickets.length / ticketsPerPage);
+                pagination.innerHTML = '';
+
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Anterior';
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        displayPage(tickets, currentPage);
+                        updatePagination(tickets);
+                    }
+                });
+                prevButton.disabled = currentPage === 1;
+                prevButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-xs');
+                pagination.appendChild(prevButton);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.textContent = i;
+                    pageButton.classList.toggle('active', i === currentPage);
+                    pageButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-xs');
+                    if (i === currentPage) pageButton.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+                    pageButton.addEventListener('click', () => {
+                        currentPage = i;
+                        displayPage(tickets, currentPage);
+                        updatePagination(tickets);
+                    });
+                    pagination.appendChild(pageButton);
+                }
+
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Siguiente';
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        displayPage(tickets, currentPage);
+                        updatePagination(tickets);
+                    }
+                });
+                nextButton.disabled = currentPage === totalPages;
+                nextButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-xs');
+                pagination.appendChild(nextButton);
+            }
+
             if (statusFilter) statusFilter.addEventListener('change', applyFiltersAndPagination);
             if (priorityFilter) priorityFilter.addEventListener('change', applyFiltersAndPagination);
             if (categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndPagination);
@@ -380,6 +482,98 @@
                 adminMessage.className = `text-sm text-center mb-1.5 ${className}`;
                 adminMessage.classList.remove('hidden');
                 setTimeout(() => adminMessage.classList.add('hidden'), 3000);
+            }
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    try {
+                        const userDoc = await getDoc(doc(db, 'users', user.uid));
+                        const userData = userDoc.exists() ? userDoc.data() : {};
+                        const role = userData.role || 'client';
+                        console.log('Rol del usuario en admin.html:', role);
+
+                        // Verificar que los elementos existan antes de usar classList
+                        if (clientLink) clientLink.classList.toggle('hidden', role !== 'client');
+                        if (adminLink) adminLink.classList.toggle('hidden', role !== 'admin');
+                        if (profileLink) profileLink.classList.remove('hidden');
+                        if (logoutLink) logoutLink.classList.remove('hidden');
+                        if (clientLinkMobile) clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                        if (adminLinkMobile) adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                        if (profileLinkMobile) profileLinkMobile.classList.remove('hidden');
+                        if (logoutLinkMobile) logoutLinkMobile.classList.remove('hidden');
+
+                        if (role !== 'admin') window.location.href = 'index.html';
+
+                        await loadAdmins();
+                        loadTickets();
+                    } catch (error) {
+                        console.error('Error al obtener el rol del usuario:', error);
+                        showMessage('Error al verificar permisos: ' + error.message, 'text-red-500');
+                    }
+                } else {
+                    window.location.href = 'index.html';
+                }
+            });
+
+            async function loadAdmins() {
+                try {
+                    const usersSnapshot = await getDocs(collection(db, 'users'));
+                    admins = usersSnapshot.docs
+                        .filter(doc => doc.data().role === 'admin')
+                        .map(doc => ({ id: doc.id, email: doc.data().email || 'Sin email' }));
+                    console.log('Administradores cargados:', admins);
+                } catch (error) {
+                    console.error('Error al cargar administradores:', error);
+                    showMessage('Error al cargar administradores: ' + error.message, 'text-red-500');
+                }
+            }
+
+            async function loadTickets() {
+                onSnapshot(collection(db, 'tickets'), async (snapshot) => {
+                    console.log('Tickets recibidos:', snapshot.docs.length);
+                    allTickets = await Promise.all(snapshot.docs.map(async document => {
+                        const data = document.data();
+                        console.log('Ticket:', document.id, data);
+                        try {
+                            const userDoc = await getDoc(doc(db, 'users', data.user_id));
+                            const userData = userDoc.exists() ? userDoc.data() : { username: 'Desconocido', email: 'Sin correo' };
+                            return { 
+                                id: document.id, 
+                                title: data.title || 'Sin título', 
+                                description: data.description || 'Sin descripción', 
+                                status: data.status || 'nuevo', 
+                                priority: data.priority || 'media', 
+                                category: data.category || 'Otros', 
+                                created_at: data.created_at || new Date().toISOString(), 
+                                updated_at: data.updated_at || new Date().toISOString(), 
+                                user_id: data.user_id || '', 
+                                assigned_to: data.assigned_to || '', 
+                                username: userData.username || 'Desconocido', 
+                                email: userData.email || 'Sin correo' 
+                            };
+                        } catch (error) {
+                            console.error('Error al cargar usuario para ticket:', document.id, error);
+                            return { 
+                                id: document.id, 
+                                title: data.title || 'Sin título', 
+                                description: data.description || 'Sin descripción', 
+                                status: data.status || 'nuevo', 
+                                priority: data.priority || 'media', 
+                                category: data.category || 'Otros', 
+                                created_at: data.created_at || new Date().toISOString(), 
+                                updated_at: data.updated_at || new Date().toISOString(), 
+                                user_id: data.user_id || '', 
+                                assigned_to: data.assigned_to || '', 
+                                username: 'Desconocido', 
+                                email: 'Sin correo' 
+                            };
+                        }
+                    }));
+                    applyFiltersAndPagination();
+                }, (error) => {
+                    console.error('Error al cargar tickets:', error);
+                    showMessage('Error al cargar tickets: ' + error.message, 'text-red-500');
+                });
             }
         });
     </script>
