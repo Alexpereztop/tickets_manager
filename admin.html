@@ -157,6 +157,15 @@
             let currentPage = 1;
             const ticketsPerPage = 10;
 
+            window.editTicket = function(ticketId) {
+                editedTickets[ticketId] = true;
+                applyFiltersAndPagination();
+            };
+
+            window.saveChanges = function(ticketId) {
+                saveChanges(ticketId);
+            };
+
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     try {
@@ -304,8 +313,8 @@
                             <td class="p-3">${ticket.updated_at ? new Date(ticket.updated_at).toLocaleString() : 'N/A'}</td>
                             <td class="p-3">
                                 ${isEditing ? 
-                                    `<button onclick="saveChanges('${ticket.id}')" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-300"><i class="fas fa-save mr-1"></i> Guardar</button>` :
-                                    `<button onclick="editTicket('${ticket.id}')" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300"><i class="fas fa-edit mr-1"></i> Editar</button>`
+                                    `<button class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-300 save-btn" data-id="${ticket.id}"><i class="fas fa-save mr-1"></i> Guardar</button>` :
+                                    `<button class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300 edit-btn" data-id="${ticket.id}"><i class="fas fa-edit mr-1"></i> Editar</button>`
                                 }
                             </td>
                         </tr>
@@ -315,6 +324,20 @@
                 if (paginatedTickets.length === 0) {
                     ticketTable.innerHTML = '<tr><td colspan="12" class="p-3 text-center text-gray-500">No hay tickets que coincidan con los filtros.</td></tr>';
                 }
+
+                // Añadir eventos dinámicos después de renderizar
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const ticketId = btn.getAttribute('data-id');
+                        editTicket(ticketId);
+                    });
+                });
+                document.querySelectorAll('.save-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const ticketId = btn.getAttribute('data-id');
+                        saveChanges(ticketId);
+                    });
+                });
             }
 
             function updatePagination(tickets) {
