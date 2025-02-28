@@ -11,6 +11,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
         .table-container { max-height: 500px; overflow-y: auto; }
+        .edit-mode .editable { background-color: #f0f9ff; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -88,6 +89,7 @@
                             <th class="p-3">Asignado a</th>
                             <th class="p-3">Creado</th>
                             <th class="p-3">Actualizado</th>
+                            <th class="p-3">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="ticketTable"></tbody>
@@ -142,6 +144,7 @@
 
             let allTickets = [];
             let admins = [];
+            let editedTickets = {}; // Para rastrear cambios pendientes
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -226,43 +229,83 @@
                 ticketTable.innerHTML = '';
                 console.log('Tickets filtrados:', filteredTickets.length);
                 filteredTickets.forEach(ticket => {
+                    const isEditing = editedTickets[ticket.id] || false;
                     const row = `
-                        <tr class="border-b">
+                        <tr class="border-b ${isEditing ? 'edit-mode' : ''}">
                             <td class="p-3">${ticket.id}</td>
                             <td class="p-3">${ticket.title}</td>
                             <td class="p-3">${ticket.description}</td>
                             <td class="p-3">
-                                <select onchange="updateTicket('${ticket.id}', 'status', this.value)" class="p-1 border rounded">
+                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'}>
                                     <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo</option>
                                     <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso</option>
                                     <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto</option>
                                 </select>
                             </td>
                             <td class="p-3">
-                                <select onchange="updateTicket('${ticket.id}', 'priority', this.value)" class="p-1 border rounded">
+                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'}>
                                     <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja</option>
                                     <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media</option>
                                     <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta</option>
                                 </select>
                             </td>
                             <td class="p-3">
-                                <select onchange="updateTicket('${ticket.id}', 'assigned_to', this.value)" class="p-1 border rounded">
+                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'}>
                                     <option value="">Sin asignar</option>
                                     ${admins.map(admin => `<option value="${admin.id}" ${ticket.assigned_to === admin.id ? 'selected' : ''}>${admin.email}</option>`).join('')}
                                 </select>
                             </td>
                             <td class="p-3">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</td>
                             <td class="p-3">${ticket.updated_at ? new Date(ticket.updated_at).toLocaleString() : 'N/A'}</td>
+                            <td class="p-3">
+                                ${isEditing ? 
+                                    `<button onclick="saveChanges('${ticket.id}')" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-300"><i class="fas fa-save mr-1"></i> Guardar</button>` :
+                                    `<button onclick="editTicket('${ticket.id}')" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300"><i class="fas fa-edit mr-1"></i> Editar</button>`
+                                }
+                            </td>
                         </tr>
                     `;
                     ticketTable.insertAdjacentHTML('beforeend', row);
                 });
                 if (filteredTickets.length === 0) {
-                    ticketTable.innerHTML = '<tr><td colspan="8" class="p-3 text-center text-gray-500">No hay tickets que coincidan con los filtros.</td></tr>';
+                    ticketTable.innerHTML = '<tr><td colspan="9" class="p-3 text-center text-gray-500">No hay tickets que coincidan con los filtros.</td></tr>';
+                }
+            }
+
+            function editTicket(ticketId) {
+                editedTickets[ticketId] = true;
+                applyFilters(); // Re-renderizar la tabla con los campos editables
+            }
+
+            async function saveChanges(ticketId) {
+                const row = document.querySelector(`tr[data-id="${ticketId}"]`);
+                if (!row) return;
+
+                const statusSelect = row.querySelector('select:nth-child(4)');
+                const prioritySelect = row.querySelector('select:nth-child(5)');
+                const assignedSelect = row.querySelector('select:nth-child(6)');
+
+                const changes = {
+                    status: statusSelect.value,
+                    priority: prioritySelect.value,
+                    assigned_to: assignedSelect.value || '',
+                    updated_at: new Date().toISOString()
+                };
+
+                try {
+                    const ticketRef = doc(db, 'tickets', ticketId);
+                    await updateDoc(ticketRef, changes);
+                    showMessage('¡Cambios guardados con éxito!', 'text-green-500');
+                    editedTickets[ticketId] = false; // Salir del modo edición
+                    applyFilters(); // Re-renderizar para mostrar los datos actualizados
+                } catch (error) {
+                    showMessage(`Error al guardar cambios: ${error.message}`, 'text-red-500');
+                    console.error('Error al guardar cambios:', error);
                 }
             }
 
             async function updateTicket(ticketId, field, value) {
+                // Esta función ahora no se usa directamente, pero la mantenemos por compatibilidad
                 try {
                     const ticketRef = doc(db, 'tickets', ticketId);
                     await updateDoc(ticketRef, {
