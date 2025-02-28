@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tickets - Reportes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos personalizados */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Menú de Navegación -->
+    <nav class="bg-white shadow-lg p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <div class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-ticket-alt mr-2 text-blue-500"></i> Tickets
+            </div>
+            <!-- Links de Navegación -->
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" id="homeLink" class="nav-link text-gray-600">Inicio</a>
+                <a href="client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
+                <a href="admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
+                <a href="profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
+                <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
+            </div>
+            <!-- Botón Hamburguesa (Móvil) -->
+            <div class="md:hidden">
+                <button id="menuToggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Menú Móvil -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
+            <a href="index.html" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link">Inicio</a>
+            <a href="client.html" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
+            <a href="admin.html" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
+            <a href="profile.html" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
+            <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl mx-auto py-10 px-4">
+        <div class="bg-white shadow-xl rounded-lg p-6 fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-chart-line mr-2 text-blue-500"></i> Dashboard de Reportes
+            </h2>
+            <!-- Gráficos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tickets Abiertos -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Tickets Abiertos</h3>
+                    <canvas id="openTicketsChart"></canvas>
+                </div>
+                <!-- Distribución por Categoría -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Distribución por Categoría</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <!-- Tiempo Promedio de Respuesta -->
+                <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Tiempo Promedio de Respuesta (horas)</h3>
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZePWGqYeBApjnH5TM288hK4FrUqzj8lg",
+            authDomain: "tickets2-5074d.firebaseapp.com",
+            projectId: "tickets2-5074d",
+            storageBucket: "tickets2-5074d.firebasestorage.app",
+            messagingSenderId: "896259008791",
+            appId: "1:896259008791:web:d004d06ff1dcd7701aaf52"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos del DOM
+        const clientLink = document.getElementById('clientLink');
+        const adminLink = document.getElementById('adminLink');
+        const profileLink = document.getElementById('profileLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const clientLinkMobile = document.getElementById('clientLinkMobile');
+        const adminLinkMobile = document.getElementById('adminLinkMobile');
+        const profileLinkMobile = document.getElementById('profileLinkMobile');
+        const logoutLinkMobile = document.getElementById('logoutLinkMobile');
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        // Mostrar/Ocultar menú móvil
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Cerrar Sesión
+        logoutLink.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
+        logoutLinkMobile.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
+
+        // Monitorear estado de autenticación
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.exists() ? userDoc.data() : {};
+                const role = userData.role || 'client';
+
+                clientLink.classList.toggle('hidden', role !== 'client');
+                adminLink.classList.toggle('hidden', role !== 'admin');
+                profileLink.classList.remove('hidden');
+                logoutLink.classList.remove('hidden');
+                clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                profileLinkMobile.classList.remove('hidden');
+                logoutLinkMobile.classList.remove('hidden');
+
+                if (role !== 'admin') window.location.href = 'index.html'; // Solo admins aquí
+
+                // Cargar datos para gráficos
+                loadCharts();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Configuración de gráficos
+        let openTicketsChart, categoryChart, responseTimeChart;
+
+        function loadCharts() {
+            onSnapshot(collection(db, 'tickets'), (snapshot) => {
+                const tickets = snapshot.docs.map(doc => doc.data());
+
+                // Tickets Abiertos
+                const openTickets = tickets.filter(t => t.status !== 'resuelto').length;
+                const closedTickets = tickets.length - openTickets;
+                if (openTicketsChart) openTicketsChart.destroy();
+                openTicketsChart = new Chart(document.getElementById('openTicketsChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Abiertos', 'Cerrados'],
+                        datasets: [{
+                            data: [openTickets, closedTickets],
+                            backgroundColor: ['#3b82f6', '#e5e7eb']
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                // Distribución por Categoría
+                const categories = tickets.reduce((acc, t) => {
+                    acc[t.category] = (acc[t.category] || 0) + 1;
+                    return acc;
+                }, {});
+                if (categoryChart) categoryChart.destroy();
+                categoryChart = new Chart(document.getElementById('categoryChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(categories),
+                        datasets: [{
+                            label: 'Tickets por Categoría',
+                            data: Object.values(categories),
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                });
+
+                // Tiempo Promedio de Respuesta
+                const resolvedTickets = tickets.filter(t => t.status === 'resuelto');
+                const responseTimes = resolvedTickets.map(t => {
+                    const created = new Date(t.created_at).getTime();
+                    const updated = new Date(t.updated_at).getTime();
+                    return (updated - created) / (1000 * 60 * 60); // Horas
+                });
+                const avgResponseTime = responseTimes.length ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length).toFixed(2) : 0;
+                if (responseTimeChart) responseTimeChart.destroy();
+                responseTimeChart = new Chart(document.getElementById('responseTimeChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Tiempo Promedio'],
+                        datasets: [{
+                            label: 'Horas',
+                            data: [avgResponseTime],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tickets - Administradores</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Estilos personalizados */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
+        .table-container { max-height: 500px; overflow-y: auto; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Menú de Navegación -->
+    <nav class="bg-white shadow-lg p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <div class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-ticket-alt mr-2 text-blue-500"></i> Tickets
+            </div>
+            <!-- Links de Navegación -->
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" id="homeLink" class="nav-link text-gray-600">Inicio</a>
+                <a href="client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
+                <a href="admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
+                <a href="profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
+                <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
+            </div>
+            <!-- Botón Hamburguesa (Móvil) -->
+            <div class="md:hidden">
+                <button id="menuToggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Menú Móvil -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
+            <a href="index.html" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link">Inicio</a>
+            <a href="client.html" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
+            <a href="admin.html" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
+            <a href="profile.html" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
+            <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl mx-auto py-10 px-4">
+        <div class="bg-white shadow-xl rounded-lg p-6 fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-tools mr-2 text-blue-500"></i> Gestión de Tickets
+            </h2>
+            <!-- Filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label for="statusFilter" class="block text-gray-700 font-medium mb-2">Estado</label>
+                    <select id="statusFilter" class="w-full p-2 border rounded-lg">
+                        <option value="">Todos</option>
+                        <option value="nuevo">Nuevo</option>
+                        <option value="en progreso">En Progreso</option>
+                        <option value="resuelto">Resuelto</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="priorityFilter" class="block text-gray-700 font-medium mb-2">Prioridad</label>
+                    <select id="priorityFilter" class="w-full p-2 border rounded-lg">
+                        <option value="">Todas</option>
+                        <option value="baja">Baja</option>
+                        <option value="media">Media</option>
+                        <option value="alta">Alta</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="categoryFilter" class="block text-gray-700 font-medium mb-2">Categoría</label>
+                    <select id="categoryFilter" class="w-full p-2 border rounded-lg">
+                        <option value="">Todas</option>
+                        <option value="Soporte Técnico">Soporte Técnico</option>
+                        <option value="Facturación">Facturación</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Mensaje -->
+            <p id="adminMessage" class="text-sm text-center mb-4 hidden"></p>
+            <!-- Tabla de Tickets -->
+            <div class="table-container">
+                <table class="w-full text-left text-gray-700">
+                    <thead class="bg-gray-200 sticky top-0">
+                        <tr>
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Título</th>
+                            <th class="p-3">Descripción</th>
+                            <th class="p-3">Estado</th>
+                            <th class="p-3">Prioridad</th>
+                            <th class="p-3">Asignado a</th>
+                            <th class="p-3">Creado</th>
+                            <th class="p-3">Actualizado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZePWGqYeBApjnH5TM288hK4FrUqzj8lg",
+            authDomain: "tickets2-5074d.firebaseapp.com",
+            projectId: "tickets2-5074d",
+            storageBucket: "tickets2-5074d.firebasestorage.app",
+            messagingSenderId: "896259008791",
+            appId: "1:896259008791:web:d004d06ff1dcd7701aaf52"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos del DOM
+        const ticketTable = document.getElementById('ticketTable');
+        const adminMessage = document.getElementById('adminMessage');
+        const statusFilter = document.getElementById('statusFilter');
+        const priorityFilter = document.getElementById('priorityFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const clientLink = document.getElementById('clientLink');
+        const adminLink = document.getElementById('adminLink');
+        const profileLink = document.getElementById('profileLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const clientLinkMobile = document.getElementById('clientLinkMobile');
+        const adminLinkMobile = document.getElementById('adminLinkMobile');
+        const profileLinkMobile = document.getElementById('profileLinkMobile');
+        const logoutLinkMobile = document.getElementById('logoutLinkMobile');
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        // Mostrar/Ocultar menú móvil
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Cerrar Sesión
+        logoutLink.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
+        logoutLinkMobile.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
+
+        // Monitorear estado de autenticación
+        let allTickets = [];
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.exists() ? userDoc.data() : {};
+                const role = userData.role || 'client';
+
+                clientLink.classList.toggle('hidden', role !== 'client');
+                adminLink.classList.toggle('hidden', role !== 'admin');
+                profileLink.classList.remove('hidden');
+                logoutLink.classList.remove('hidden');
+                clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                profileLinkMobile.classList.remove('hidden');
+                logoutLinkMobile.classList.remove('hidden');
+
+                if (role !== 'admin') window.location.href = 'index.html'; // Solo admins aquí
+
+                // Cargar administradores para el select
+                loadAdmins();
+                // Cargar tickets
+                loadTickets();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Cargar administradores
+        let admins = [];
+        async function loadAdmins() {
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            admins = usersSnapshot.docs
+                .filter(doc => doc.data().role === 'admin')
+                .map(doc => ({ id: doc.id, email: doc.data().email }));
+        }
+
+        // Cargar y mostrar tickets en tiempo real
+        function loadTickets() {
+            onSnapshot(collection(db, 'tickets'), (snapshot) => {
+                allTickets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                applyFilters();
+            });
+        }
+
+        // Aplicar filtros y renderizar tabla
+        function applyFilters() {
+            const status = statusFilter.value;
+            const priority = priorityFilter.value;
+            const category = categoryFilter.value;
+
+            const filteredTickets = allTickets.filter(ticket => {
+                return (!status || ticket.status === status) &&
+                       (!priority || ticket.priority === priority) &&
+                       (!category || ticket.category === category);
+            });
+
+            ticketTable.innerHTML = '';
+            filteredTickets.forEach(ticket => {
+                const row = `
+                    <tr class="border-b">
+                        <td class="p-3">${ticket.id}</td>
+                        <td class="p-3">${ticket.title}</td>
+                        <td class="p-3">${ticket.description}</td>
+                        <td class="p-3">
+                            <select onchange="updateTicket('${ticket.id}', 'status', this.value)" class="p-1 border rounded">
+                                <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo</option>
+                                <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso</option>
+                                <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto</option>
+                            </select>
+                        </td>
+                        <td class="p-3">
+                            <select onchange="updateTicket('${ticket.id}', 'priority', this.value)" class="p-1 border rounded">
+                                <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja</option>
+                                <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media</option>
+                                <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta</option>
+                            </select>
+                        </td>
+                        <td class="p-3">
+                            <select onchange="updateTicket('${ticket.id}', 'assigned_to', this.value)" class="p-1 border rounded">
+                                <option value="">Sin asignar</option>
+                                ${admins.map(admin => `<option value="${admin.id}" ${ticket.assigned_to === admin.id ? 'selected' : ''}>${admin.email}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="p-3">${new Date(ticket.created_at).toLocaleString()}</td>
+                        <td class="p-3">${new Date(ticket.updated_at).toLocaleString()}</td>
+                    </tr>
+                `;
+                ticketTable.insertAdjacentHTML('beforeend', row);
+            });
+            if (filteredTickets.length === 0) {
+                ticketTable.innerHTML = '<tr><td colspan="8" class="p-3 text-center text-gray-500">No hay tickets que coincidan con los filtros.</td></tr>';
+            }
+        }
+
+        // Actualizar ticket en Firestore
+        async function updateTicket(ticketId, field, value) {
+            try {
+                const ticketRef = doc(db, 'tickets', ticketId);
+                await updateDoc(ticketRef, {
+                    [field]: value,
+                    updated_at: new Date().toISOString()
+                });
+                showMessage('¡Ticket actualizado con éxito!', 'text-green-500');
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'text-red-500');
+            }
+        }
+
+        // Aplicar filtros al cambiar selección
+        statusFilter.addEventListener('change', applyFilters);
+        priorityFilter.addEventListener('change', applyFilters);
+        categoryFilter.addEventListener('change', applyFilters);
+
+        // Mostrar mensajes
+        function showMessage(text, className) {
+            adminMessage.textContent = text;
+            adminMessage.className = `text-sm text-center mb-4 ${className}`;
+            adminMessage.classList.remove('hidden');
+            setTimeout(() => adminMessage.classList.add('hidden'), 3000);
+        }
+    </script>
+</body>
+</html>

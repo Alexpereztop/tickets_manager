@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tickets - Base de Conocimiento</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Estilos personalizados */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
+        .faq-item { transition: all 0.3s ease; }
+        .faq-item.hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Menú de Navegación -->
+    <nav class="bg-white shadow-lg p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <div class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-ticket-alt mr-2 text-blue-500"></i> Tickets
+            </div>
+            <!-- Links de Navegación -->
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" id="homeLink" class="nav-link text-gray-600">Inicio</a>
+                <a href="client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
+                <a href="admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
+                <a href="profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
+                <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
+            </div>
+            <!-- Botón Hamburguesa (Móvil) -->
+            <div class="md:hidden">
+                <button id="menuToggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Menú Móvil -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
+            <a href="index.html" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link">Inicio</a>
+            <a href="client.html" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
+            <a href="admin.html" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
+            <a href="profile.html" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
+            <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl mx-auto py-10 px-4">
+        <div class="bg-white shadow-xl rounded-lg p-6 fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-book mr-2 text-blue-500"></i> Base de Conocimiento
+            </h2>
+            <!-- Buscador -->
+            <div class="mb-6">
+                <label for="searchInput" class="block text-gray-700 font-medium mb-2">
+                    <i class="fas fa-search mr-2"></i> Buscar en la Base de Conocimiento
+                </label>
+                <input type="text" id="searchInput" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Escribe tu pregunta...">
+            </div>
+            <!-- Lista de FAQs -->
+            <div id="faqList" class="space-y-4">
+                <!-- FAQs se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZePWGqYeBApjnH5TM288hK4FrUqzj8lg",
+            authDomain: "tickets2-5074d.firebaseapp.com",
+            projectId: "tickets2-5074d",
+            storageBucket: "tickets2-5074d.firebasestorage.app",
+            messagingSenderId: "896259008791",
+            appId: "1:896259008791:web:d004d06ff1dcd7701aaf52"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos del DOM
+        const searchInput = document.getElementById('searchInput');
+        const faqList = document.getElementById('faqList');
+        const clientLink = document.getElementById('clientLink');
+        const adminLink = document.getElementById('adminLink');
+        const profileLink = document.getElementById('profileLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const clientLinkMobile = document.getElementById('clientLinkMobile');
+        const adminLinkMobile = document.getElementById('adminLinkMobile');
+        const profileLinkMobile = document.getElementById('profileLinkMobile');
+        const logoutLinkMobile = document.getElementById('logoutLinkMobile');
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        // Mostrar/Ocultar menú móvil
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Cerrar Sesión
+        logoutLink.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
+        logoutLinkMobile.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
+
+        // Monitorear estado de autenticación
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.exists() ? userDoc.data() : {};
+                const role = userData.role || 'client';
+
+                clientLink.classList.toggle('hidden', role !== 'client');
+                adminLink.classList.toggle('hidden', role !== 'admin');
+                profileLink.classList.remove('hidden');
+                logoutLink.classList.remove('hidden');
+                clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                profileLinkMobile.classList.remove('hidden');
+                logoutLinkMobile.classList.remove('hidden');
+
+                loadFAQs();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // FAQs (10 preguntas frecuentes basadas en el funcionamiento)
+        const faqs = [
+            { question: "¿Cómo creo un ticket?", answer: "Inicia sesión, ve a la sección 'Clientes', y completa el formulario de 'Reportar Incidencia' con título, descripción y categoría." },
+            { question: "¿Cómo veo el estado de mi ticket?", answer: "En la sección 'Clientes', encontrarás una lista con el ID, título, estado y última actualización de tus tickets." },
+            { question: "¿Qué significa el estado 'en progreso'?", answer: "Indica que un administrador está trabajando en tu incidencia." },
+            { question: "¿Puedo editar un ticket después de enviarlo?", answer: "No, solo los administradores pueden editar tickets. Contacta a soporte si necesitas cambios." },
+            { question: "¿Cuánto tiempo tarda en resolverse un ticket?", answer: "Depende de la prioridad y categoría. Revisa el 'Dashboard' para ver el tiempo promedio de respuesta." },
+            { question: "¿Cómo cambio mi correo electrónico?", answer: "Ve a 'Perfil' y edita tu información. Solo el nombre de usuario es editable por ahora." },
+            { question: "¿Qué hago si olvidé mi contraseña?", answer: "En la página de inicio de sesión, usa la opción '¿Olvidaste tu contraseña?' para restablecerla (requiere configuración adicional en Firebase)." },
+            { question: "¿Quién puede ver mis tickets?", answer: "Solo tú como cliente y los administradores tienen acceso a tus tickets." },
+            { question: "¿Qué categorías puedo elegir al crear un ticket?", answer: "Las opciones son 'Soporte Técnico', 'Facturación' y 'Otros'." },
+            { question: "¿Dónde veo estadísticas de tickets?", answer: "Los administradores pueden ver métricas en la sección 'Reportes', como tickets abiertos y tiempo de respuesta." }
+        ];
+
+        // Cargar FAQs
+        function loadFAQs() {
+            faqList.innerHTML = '';
+            faqs.forEach(faq => {
+                const faqItem = `
+                    <div class="faq-item border p-4 rounded-lg bg-gray-50">
+                        <h3 class="text-lg font-semibold text-gray-800">${faq.question}</h3>
+                        <p class="text-gray-600 mt-2">${faq.answer}</p>
+                    </div>
+                `;
+                faqList.insertAdjacentHTML('beforeend', faqItem);
+            });
+        }
+
+        // Filtrar FAQs con el buscador
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('h3').textContent.toLowerCase();
+                const answer = item.querySelector('p').textContent.toLowerCase();
+                item.classList.toggle('hidden', !(question.includes(searchTerm) || answer.includes(searchTerm)));
+            });
+        });
+    </script>
+</body>
+</html>
