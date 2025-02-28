@@ -28,14 +28,14 @@
         }
         th, td {
             word-break: break-word;
-            overflow-wrap: break-word;
+            white-space: normal;
             max-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         @media (max-width: 1024px) {
             .table-container table { min-width: 100%; }
-            .table-container th, .table-container td { min-width: 100px; white-space: nowrap; }
+            .table-container th, .table-container td { min-width: 100px; }
             th, td { max-width: 120px; }
         }
         @media (max-width: 768px) {
@@ -52,11 +52,11 @@
                 <i class="fas fa-ticket-alt mr-2 text-blue-500"></i> Tickets
             </div>
             <div class="hidden md:flex space-x-6">
-                <a href="index.html" class="nav-link text-gray-600">Inicio</a>
-                <a href="client.html" class="nav-link text-gray-600 hidden">Clientes</a>
-                <a href="admin.html" class="nav-link text-gray-600 hidden">Administradores</a>
-                <a href="profile.html" class="nav-link text-gray-600 hidden">Perfil</a>
-                <a href="#" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
+                <a href="index.html" id="homeLink" class="nav-link text-gray-600">Inicio</a>
+                <a href="client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
+                <a href="admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
+                <a href="profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
+                <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
             </div>
             <div class="md:hidden">
                 <button id="menuToggle" class="text-gray-600 focus:outline-none">
@@ -221,14 +221,15 @@
                         const role = userData.role || 'client';
                         console.log('Rol del usuario en admin.html:', role);
 
-                        clientLink.classList.toggle('hidden', role !== 'client');
-                        adminLink.classList.toggle('hidden', role !== 'admin');
-                        profileLink.classList.remove('hidden');
-                        logoutLink.classList.remove('hidden');
-                        clientLinkMobile.classList.toggle('hidden', role !== 'client');
-                        adminLinkMobile.classList.toggle('hidden', role !== 'admin');
-                        profileLinkMobile.classList.remove('hidden');
-                        logoutLinkMobile.classList.remove('hidden');
+                        // Verificar que los elementos existan antes de usar classList
+                        if (clientLink) clientLink.classList.toggle('hidden', role !== 'client');
+                        if (adminLink) adminLink.classList.toggle('hidden', role !== 'admin');
+                        if (profileLink) profileLink.classList.remove('hidden');
+                        if (logoutLink) logoutLink.classList.remove('hidden');
+                        if (clientLinkMobile) clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                        if (adminLinkMobile) adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                        if (profileLinkMobile) profileLinkMobile.classList.remove('hidden');
+                        if (logoutLinkMobile) logoutLinkMobile.classList.remove('hidden');
 
                         if (role !== 'admin') window.location.href = 'index.html';
 
@@ -352,16 +353,16 @@
                             <td class="p-3">${ticket.description}</td>
                             <td class="p-3">
                                 <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="status">
-                                    <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo <i class="fas ${statusIcon} ${statusClass}"></i></option>
-                                    <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso <i class="fas ${statusIcon} ${statusClass}"></i></option>
-                                    <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto <i class="fas ${statusIcon} ${statusClass}"></i></option>
+                                    <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo <i class="fas ${statusIcon} ${statusClass} ml-1"></i></option>
+                                    <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso <i class="fas ${statusIcon} ${statusClass} ml-1"></i></option>
+                                    <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto <i class="fas ${statusIcon} ${statusClass} ml-1"></i></option>
                                 </select>
                             </td>
                             <td class="p-3">
                                 <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="priority">
-                                    <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja <i class="fas ${priorityIcon} ${priorityClass}"></i></option>
-                                    <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media <i class="fas ${priorityIcon} ${priorityClass}"></i></option>
-                                    <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta <i class="fas ${priorityIcon} ${priorityClass}"></i></option>
+                                    <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></option>
+                                    <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></option>
+                                    <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></option>
                                 </select>
                             </td>
                             <td class="p-3">${ticket.category}</td>
