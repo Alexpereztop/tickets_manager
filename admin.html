@@ -291,14 +291,14 @@
                             <td class="p-3">${ticket.title}</td>
                             <td class="p-3">${ticket.description}</td>
                             <td class="p-3">
-                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'}>
+                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="status">
                                     <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo</option>
                                     <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso</option>
                                     <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto</option>
                                 </select>
                             </td>
                             <td class="p-3">
-                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'}>
+                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="priority">
                                     <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja</option>
                                     <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media</option>
                                     <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta</option>
@@ -308,7 +308,7 @@
                             <td class="p-3">${ticket.username}</td>
                             <td class="p-3">${ticket.email}</td>
                             <td class="p-3">
-                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'}>
+                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="assigned_to">
                                     <option value="">Sin asignar</option>
                                     ${admins.map(admin => `<option value="${admin.id}" ${ticket.assigned_to === admin.id ? 'selected' : ''}>${admin.email}</option>`).join('')}
                                 </select>
@@ -397,13 +397,13 @@
                     return;
                 }
 
-                const statusSelect = row.querySelector('.editable:nth-child(4)');
-                const prioritySelect = row.querySelector('.editable:nth-child(5)');
-                const assignedSelect = row.querySelector('.editable:nth-child(9)');
+                const statusSelect = row.querySelector('.editable[data-field="status"]');
+                const prioritySelect = row.querySelector('.editable[data-field="priority"]');
+                const assignedSelect = row.querySelector('.editable[data-field="assigned_to"]');
 
                 if (!statusSelect || !prioritySelect || !assignedSelect) {
                     showMessage('No se encontraron los campos editables.', 'text-red-500');
-                    console.error('Faltan selectores en la fila:', row);
+                    console.error('Faltan selectores en la fila:', row.innerHTML);
                     return;
                 }
 
