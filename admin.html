@@ -203,25 +203,43 @@
             async function loadTickets() {
                 onSnapshot(collection(db, 'tickets'), async (snapshot) => {
                     console.log('Tickets recibidos:', snapshot.docs.length);
-                    allTickets = await Promise.all(snapshot.docs.map(async doc => {
-                        const data = doc.data();
-                        console.log('Ticket:', doc.id, data);
-                        const userDoc = await getDoc(doc(db, 'users', data.user_id));
-                        const userData = userDoc.exists() ? userDoc.data() : { username: 'Desconocido', email: 'Sin correo' };
-                        return { 
-                            id: doc.id, 
-                            title: data.title || 'Sin título', 
-                            description: data.description || 'Sin descripción', 
-                            status: data.status || 'nuevo', 
-                            priority: data.priority || 'media', 
-                            category: data.category || 'Otros', 
-                            created_at: data.created_at || new Date().toISOString(), 
-                            updated_at: data.updated_at || new Date().toISOString(), 
-                            user_id: data.user_id || '', 
-                            assigned_to: data.assigned_to || '', 
-                            username: userData.username || 'Desconocido', 
-                            email: userData.email || 'Sin correo' 
-                        };
+                    allTickets = await Promise.all(snapshot.docs.map(async document => {
+                        const data = document.data();
+                        console.log('Ticket:', document.id, data);
+                        try {
+                            const userDoc = await getDoc(doc(db, 'users', data.user_id));
+                            const userData = userDoc.exists() ? userDoc.data() : { username: 'Desconocido', email: 'Sin correo' };
+                            return { 
+                                id: document.id, 
+                                title: data.title || 'Sin título', 
+                                description: data.description || 'Sin descripción', 
+                                status: data.status || 'nuevo', 
+                                priority: data.priority || 'media', 
+                                category: data.category || 'Otros', 
+                                created_at: data.created_at || new Date().toISOString(), 
+                                updated_at: data.updated_at || new Date().toISOString(), 
+                                user_id: data.user_id || '', 
+                                assigned_to: data.assigned_to || '', 
+                                username: userData.username || 'Desconocido', 
+                                email: userData.email || 'Sin correo' 
+                            };
+                        } catch (error) {
+                            console.error('Error al cargar usuario para ticket:', document.id, error);
+                            return { 
+                                id: document.id, 
+                                title: data.title || 'Sin título', 
+                                description: data.description || 'Sin descripción', 
+                                status: data.status || 'nuevo', 
+                                priority: data.priority || 'media', 
+                                category: data.category || 'Otros', 
+                                created_at: data.created_at || new Date().toISOString(), 
+                                updated_at: data.updated_at || new Date().toISOString(), 
+                                user_id: data.user_id || '', 
+                                assigned_to: data.assigned_to || '', 
+                                username: 'Desconocido', 
+                                email: 'Sin correo' 
+                            };
+                        }
                     }));
                     applyFiltersAndPagination();
                 }, (error) => {
@@ -342,7 +360,7 @@
 
             function editTicket(ticketId) {
                 editedTickets[ticketId] = true;
-                applyFiltersAndPagination(); // Re-renderizar con paginación
+                applyFiltersAndPagination();
             }
 
             async function saveChanges(ticketId) {
@@ -364,8 +382,8 @@
                     const ticketRef = doc(db, 'tickets', ticketId);
                     await updateDoc(ticketRef, changes);
                     showMessage('¡Cambios guardados con éxito!', 'text-green-500');
-                    editedTickets[ticketId] = false; // Salir del modo edición
-                    applyFiltersAndPagination(); // Re-renderizar para mostrar los datos actualizados
+                    editedTickets[ticketId] = false;
+                    applyFiltersAndPagination();
                 } catch (error) {
                     showMessage(`Error al guardar cambios: ${error.message}`, 'text-red-500');
                     console.error('Error al guardar cambios:', error);
