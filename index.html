@@ -20,9 +20,9 @@
             </div>
             <div class="hidden md:flex space-x-6">
                 <a href="#" id="homeLink" class="nav-link text-gray-600">Inicio</a>
-                <a href="#" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
-                <a href="#" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
-                <a href="#" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
+                <a href="./client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
+                <a href="./admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
+                <a href="./profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
                 <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
             </div>
             <div class="md:hidden">
@@ -33,9 +33,9 @@
         </div>
         <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
             <a href="#" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link">Inicio</a>
-            <a href="#" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
-            <a href="#" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
-            <a href="#" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
+            <a href="./client.html" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
+            <a href="./admin.html" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
+            <a href="./profile.html" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
             <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
         </div>
     </nav>
@@ -99,108 +99,113 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const toggleForm = document.getElementById('toggleForm');
-        const roleSection = document.getElementById('roleSection');
-        const authMessage = document.getElementById('authMessage');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const roleSelect = document.getElementById('role');
-        const clientLink = document.getElementById('clientLink');
-        const adminLink = document.getElementById('adminLink');
-        const profileLink = document.getElementById('profileLink');
-        const logoutLink = document.getElementById('logoutLink');
-        const clientLinkMobile = document.getElementById('clientLinkMobile');
-        const adminLinkMobile = document.getElementById('adminLinkMobile');
-        const profileLinkMobile = document.getElementById('profileLinkMobile');
-        const logoutLinkMobile = document.getElementById('logoutLinkMobile');
-        const menuToggle = document.getElementById('menuToggle');
-        const mobileMenu = document.getElementById('mobileMenu');
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const toggleForm = document.getElementById('toggleForm');
+            const roleSection = document.getElementById('roleSection');
+            const authMessage = document.getElementById('authMessage');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const roleSelect = document.getElementById('role');
+            const clientLink = document.getElementById('clientLink');
+            const adminLink = document.getElementById('adminLink');
+            const profileLink = document.getElementById('profileLink');
+            const logoutLink = document.getElementById('logoutLink');
+            const clientLinkMobile = document.getElementById('clientLinkMobile');
+            const adminLinkMobile = document.getElementById('adminLinkMobile');
+            const profileLinkMobile = document.getElementById('profileLinkMobile');
+            const logoutLinkMobile = document.getElementById('logoutLinkMobile');
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
 
-        let isLoginMode = true;
+            if (menuToggle) {
+                menuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
 
-        menuToggle.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+            let isLoginMode = true;
 
-        toggleForm.addEventListener('click', () => {
-            isLoginMode = !isLoginMode;
-            roleSection.classList.toggle('hidden');
-            loginBtn.classList.toggle('hidden');
-            registerBtn.classList.toggle('hidden');
-            toggleForm.textContent = isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
-            authMessage.classList.add('hidden');
-        });
+            if (toggleForm) toggleForm.addEventListener('click', () => {
+                isLoginMode = !isLoginMode;
+                roleSection.classList.toggle('hidden');
+                loginBtn.classList.toggle('hidden');
+                registerBtn.classList.toggle('hidden');
+                toggleForm.textContent = isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
+                authMessage.classList.add('hidden');
+            });
 
-        loginBtn.addEventListener('click', () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            signInWithEmailAndPassword(auth, email, password)
-                .then(async (userCredential) => {
-                    const user = userCredential.user;
+            if (loginBtn) loginBtn.addEventListener('click', () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(async (userCredential) => {
+                        const user = userCredential.user;
+                        const userDoc = await getDoc(doc(db, 'users', user.uid));
+                        const role = userDoc.exists() ? userDoc.data().role : 'client';
+                        showMessage('¡Inicio de sesión exitoso!', 'text-green-500');
+                        setTimeout(() => {
+                            window.location.href = role === 'admin' ? './admin.html' : './client.html';
+                        }, 1000);
+                    })
+                    .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
+            });
+
+            if (registerBtn) registerBtn.addEventListener('click', () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                const role = roleSelect.value;
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(userCredential => {
+                        const user = userCredential.user;
+                        return setDoc(doc(db, 'users', user.uid), { email, role });
+                    })
+                    .then(() => showMessage('¡Registro exitoso! Inicia sesión.', 'text-green-500'))
+                    .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
+            });
+
+            if (logoutLink) logoutLink.addEventListener('click', () => signOut(auth));
+            if (logoutLinkMobile) logoutLinkMobile.addEventListener('click', () => signOut(auth));
+
+            onAuthStateChanged(auth, async user => {
+                if (user) {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const role = userDoc.exists() ? userDoc.data().role : 'client';
-                    showMessage('¡Inicio de sesión exitoso!', 'text-green-500');
-                    setTimeout(() => {
-                        window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
-                    }, 1000);
-                })
-                .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
-        });
-
-        registerBtn.addEventListener('click', () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            const role = roleSelect.value;
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    return setDoc(doc(db, 'users', user.uid), { email, role });
-                })
-                .then(() => showMessage('¡Registro exitoso! Inicia sesión.', 'text-green-500'))
-                .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
-        });
-
-        logoutLink.addEventListener('click', () => signOut(auth));
-        logoutLinkMobile.addEventListener('click', () => signOut(auth));
-
-        onAuthStateChanged(auth, async user => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const role = userDoc.exists() ? userDoc.data().role : 'client';
-                clientLink.classList.toggle('hidden', role !== 'client');
-                adminLink.classList.toggle('hidden', role !== 'admin');
-                profileLink.classList.remove('hidden');
-                logoutLink.classList.remove('hidden');
-                clientLinkMobile.classList.toggle('hidden', role !== 'client');
-                adminLinkMobile.classList.toggle('hidden', role !== 'admin');
-                profileLinkMobile.classList.remove('hidden');
-                logoutLinkMobile.classList.remove('hidden');
-                clientLink.href = 'client.html';
-                adminLink.href = 'admin.html';
-                profileLink.href = 'profile.html';
-                // Redirigir automáticamente si ya está autenticado
-                if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-                    window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
+                    clientLink.classList.toggle('hidden', role !== 'client');
+                    adminLink.classList.toggle('hidden', role !== 'admin');
+                    profileLink.classList.remove('hidden');
+                    logoutLink.classList.remove('hidden');
+                    clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                    adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                    profileLinkMobile.classList.remove('hidden');
+                    logoutLinkMobile.classList.remove('hidden');
+                    clientLink.href = './client.html';
+                    adminLink.href = './admin.html';
+                    profileLink.href = './profile.html';
+                    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+                        window.location.href = role === 'admin' ? './admin.html' : './client.html';
+                    }
+                } else {
+                    clientLink.classList.add('hidden');
+                    adminLink.classList.add('hidden');
+                    profileLink.classList.add('hidden');
+                    logoutLink.classList.add('hidden');
+                    clientLinkMobile.classList.add('hidden');
+                    adminLinkMobile.classList.add('hidden');
+                    profileLinkMobile.classList.add('hidden');
+                    logoutLinkMobile.classList.add('hidden');
                 }
-            } else {
-                clientLink.classList.add('hidden');
-                adminLink.classList.add('hidden');
-                profileLink.classList.add('hidden');
-                logoutLink.classList.add('hidden');
-                clientLinkMobile.classList.add('hidden');
-                adminLinkMobile.classList.add('hidden');
-                profileLinkMobile.classList.add('hidden');
-                logoutLinkMobile.classList.add('hidden');
+            });
+
+            function showMessage(text, className) {
+                if (authMessage) {
+                    authMessage.textContent = text;
+                    authMessage.className = `text-center text-sm mb-4 ${className}`;
+                    authMessage.classList.remove('hidden');
+                }
             }
         });
-
-        function showMessage(text, className) {
-            authMessage.textContent = text;
-            authMessage.className = `text-center text-sm mb-4 ${className}`;
-            authMessage.classList.remove('hidden');
-        }
     </script>
 </body>
 </html>
