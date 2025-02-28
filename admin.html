@@ -145,35 +145,45 @@
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    const userData = userDoc.exists() ? userDoc.data() : {};
-                    const role = userData.role || 'client';
-                    console.log('Rol del usuario en admin.html:', role);
+                    try {
+                        const userDoc = await getDoc(doc(db, 'users', user.uid));
+                        const userData = userDoc.exists() ? userDoc.data() : {};
+                        const role = userData.role || 'client';
+                        console.log('Rol del usuario en admin.html:', role);
 
-                    clientLink.classList.toggle('hidden', role !== 'client');
-                    adminLink.classList.toggle('hidden', role !== 'admin');
-                    profileLink.classList.remove('hidden');
-                    logoutLink.classList.remove('hidden');
-                    clientLinkMobile.classList.toggle('hidden', role !== 'client');
-                    adminLinkMobile.classList.toggle('hidden', role !== 'admin');
-                    profileLinkMobile.classList.remove('hidden');
-                    logoutLinkMobile.classList.remove('hidden');
+                        clientLink.classList.toggle('hidden', role !== 'client');
+                        adminLink.classList.toggle('hidden', role !== 'admin');
+                        profileLink.classList.remove('hidden');
+                        logoutLink.classList.remove('hidden');
+                        clientLinkMobile.classList.toggle('hidden', role !== 'client');
+                        adminLinkMobile.classList.toggle('hidden', role !== 'admin');
+                        profileLinkMobile.classList.remove('hidden');
+                        logoutLinkMobile.classList.remove('hidden');
 
-                    if (role !== 'admin') window.location.href = 'index.html';
+                        if (role !== 'admin') window.location.href = 'index.html';
 
-                    await loadAdmins();
-                    loadTickets();
+                        await loadAdmins();
+                        loadTickets();
+                    } catch (error) {
+                        console.error('Error al obtener el rol del usuario:', error);
+                        showMessage('Error al verificar permisos: ' + error.message, 'text-red-500');
+                    }
                 } else {
                     window.location.href = 'index.html';
                 }
             });
 
             async function loadAdmins() {
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                admins = usersSnapshot.docs
-                    .filter(doc => doc.data().role === 'admin')
-                    .map(doc => ({ id: doc.id, email: doc.data().email || 'Sin email' }));
-                console.log('Administradores cargados:', admins);
+                try {
+                    const usersSnapshot = await getDocs(collection(db, 'users'));
+                    admins = usersSnapshot.docs
+                        .filter(doc => doc.data().role === 'admin')
+                        .map(doc => ({ id: doc.id, email: doc.data().email || 'Sin email' }));
+                    console.log('Administradores cargados:', admins);
+                } catch (error) {
+                    console.error('Error al cargar administradores:', error);
+                    showMessage('Error al cargar administradores: ' + error.message, 'text-red-500');
+                }
             }
 
             function loadTickets() {
