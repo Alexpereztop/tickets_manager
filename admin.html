@@ -135,8 +135,6 @@
                 menuToggle.addEventListener('click', () => {
                     mobileMenu.classList.toggle('hidden');
                 });
-            } else {
-                console.error('Elemento menuToggle no encontrado');
             }
 
             if (logoutLink) logoutLink.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html'));
@@ -203,9 +201,9 @@
             }
 
             function applyFilters() {
-                const status = statusFilter.value;
-                const priority = priorityFilter.value;
-                const category = categoryFilter.value;
+                const status = statusFilter ? statusFilter.value : '';
+                const priority = priorityFilter ? priorityFilter.value : '';
+                const category = categoryFilter ? categoryFilter.value : '';
 
                 const filteredTickets = allTickets.filter(ticket => {
                     return (!status || ticket.status === status) &&
