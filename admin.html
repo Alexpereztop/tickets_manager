@@ -13,7 +13,7 @@
         .table-container { max-height: 500px; overflow-y: auto; overflow-x: auto; max-width: 100%; }
         .edit-mode .editable { background-color: #f0f9ff; }
         .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; }
-        .pagination button { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background-color: #fff; cursor: pointer; }
+        .pagination button { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background-color: #fff; cursor: pointer; font-size: 0.875rem; }
         .pagination button:disabled { background-color: #e5e7eb; cursor: not-allowed; }
         .pagination button.active { background-color: #3b82f6; color: white; }
         .status-nuevo { color: #ef4444; } /* Rojo */
@@ -25,6 +25,7 @@
         table {
             table-layout: fixed;
             width: 100%;
+            border-collapse: collapse;
         }
         th, td {
             word-break: break-word;
@@ -32,56 +33,57 @@
             max-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 0.875rem; /* text-sm */
         }
         @media (max-width: 1024px) {
             .table-container table { min-width: 100%; }
-            .table-container th, .table-container td { min-width: 100px; }
-            th, td { max-width: 120px; }
-        }
-        @media (max-width: 768px) {
             .table-container th, .table-container td { min-width: 80px; }
             th, td { max-width: 100px; }
+        }
+        @media (max-width: 768px) {
+            .table-container th, .table-container td { min-width: 60px; }
+            th, td { max-width: 80px; }
             .grid-cols-5 { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
-    <nav class="bg-white shadow-lg p-4 sticky top-0 z-50">
+    <nav class="bg-white shadow-lg p-3 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="text-2xl font-bold text-gray-800">
                 <i class="fas fa-ticket-alt mr-2 text-blue-500"></i> Tickets
             </div>
-            <div class="hidden md:flex space-x-6">
-                <a href="index.html" id="homeLink" class="nav-link text-gray-600">Inicio</a>
-                <a href="client.html" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
-                <a href="admin.html" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
-                <a href="profile.html" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
-                <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="index.html" id="homeLink" class="nav-link text-gray-600 text-sm">Inicio</a>
+                <a href="client.html" id="clientLink" class="nav-link text-gray-600 text-sm hidden">Clientes</a>
+                <a href="admin.html" id="adminLink" class="nav-link text-gray-600 text-sm hidden">Administradores</a>
+                <a href="profile.html" id="profileLink" class="nav-link text-gray-600 text-sm hidden">Perfil</a>
+                <a href="#" id="logoutLink" class="nav-link text-red-500 text-sm hidden">Cerrar Sesión</a>
             </div>
             <div class="md:hidden">
                 <button id="menuToggle" class="text-gray-600 focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
+                    <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
-        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
-            <a href="index.html" class="block py-2 text-gray-600 nav-link">Inicio</a>
-            <a href="client.html" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
-            <a href="admin.html" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
-            <a href="profile.html" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
-            <a href="#" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
+        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-3">
+            <a href="index.html" class="block py-2 text-gray-600 nav-link text-sm">Inicio</a>
+            <a href="client.html" class="block py-2 text-gray-600 nav-link text-sm hidden">Clientes</a>
+            <a href="admin.html" class="block py-2 text-gray-600 nav-link text-sm hidden">Administradores</a>
+            <a href="profile.html" class="block py-2 text-gray-600 nav-link text-sm hidden">Perfil</a>
+            <a href="#" class="block py-2 text-red-500 nav-link text-sm hidden">Cerrar Sesión</a>
         </div>
     </nav>
 
-    <main class="flex-grow max-w-5xl mx-auto py-6 px-4">
-        <div class="bg-white shadow-xl rounded-lg p-4 fade-in">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+    <main class="flex-grow max-w-5xl mx-auto py-4 px-3">
+        <div class="bg-white shadow-xl rounded-lg p-3 fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
                 <i class="fas fa-tools mr-2 text-blue-500"></i> Gestión de Tickets
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
                 <div>
-                    <label for="statusFilter" class="block text-gray-700 font-medium mb-2">Estado</label>
-                    <select id="statusFilter" class="w-full p-2 border rounded-lg">
+                    <label for="statusFilter" class="block text-gray-700 font-medium mb-1 text-sm">Estado</label>
+                    <select id="statusFilter" class="w-full p-2 border rounded-lg text-sm">
                         <option value="">Todos</option>
                         <option value="nuevo">Nuevo</option>
                         <option value="en progreso">En Progreso</option>
@@ -89,8 +91,8 @@
                     </select>
                 </div>
                 <div>
-                    <label for="priorityFilter" class="block text-gray-700 font-medium mb-2">Prioridad</label>
-                    <select id="priorityFilter" class="w-full p-2 border rounded-lg">
+                    <label for="priorityFilter" class="block text-gray-700 font-medium mb-1 text-sm">Prioridad</label>
+                    <select id="priorityFilter" class="w-full p-2 border rounded-lg text-sm">
                         <option value="">Todas</option>
                         <option value="baja">Baja</option>
                         <option value="media">Media</option>
@@ -98,8 +100,8 @@
                     </select>
                 </div>
                 <div>
-                    <label for="categoryFilter" class="block text-gray-700 font-medium mb-2">Categoría</label>
-                    <select id="categoryFilter" class="w-full p-2 border rounded-lg">
+                    <label for="categoryFilter" class="block text-gray-700 font-medium mb-1 text-sm">Categoría</label>
+                    <select id="categoryFilter" class="w-full p-2 border rounded-lg text-sm">
                         <option value="">Todas</option>
                         <option value="Soporte Técnico">Soporte Técnico</option>
                         <option value="Facturación">Facturación</option>
@@ -107,39 +109,39 @@
                     </select>
                 </div>
                 <div>
-                    <label for="usernameFilter" class="block text-gray-700 font-medium mb-2">Usuario (Nombre)</label>
-                    <input type="text" id="usernameFilter" class="w-full p-2 border rounded-lg" placeholder="Filtrar por nombre">
+                    <label for="usernameFilter" class="block text-gray-700 font-medium mb-1 text-sm">Usuario (Nombre)</label>
+                    <input type="text" id="usernameFilter" class="w-full p-2 border rounded-lg text-sm" placeholder="Filtrar por nombre">
                 </div>
                 <div>
-                    <label for="emailFilter" class="block text-gray-700 font-medium mb-2">Correo</label>
-                    <input type="text" id="emailFilter" class="w-full p-2 border rounded-lg" placeholder="Filtrar por correo">
+                    <label for="emailFilter" class="block text-gray-700 font-medium mb-1 text-sm">Correo</label>
+                    <input type="text" id="emailFilter" class="w-full p-2 border rounded-lg text-sm" placeholder="Filtrar por correo">
                 </div>
                 <div>
-                    <label for="createdAtFilter" class="block text-gray-700 font-medium mb-2">Fecha de Creación</label>
-                    <input type="date" id="createdAtFilter" class="w-full p-2 border rounded-lg">
+                    <label for="createdAtFilter" class="block text-gray-700 font-medium mb-1 text-sm">Fecha de Creación</label>
+                    <input type="date" id="createdAtFilter" class="w-full p-2 border rounded-lg text-sm">
                 </div>
                 <div>
-                    <label for="updatedAtFilter" class="block text-gray-700 font-medium mb-2">Fecha de Actualización</label>
-                    <input type="date" id="updatedAtFilter" class="w-full p-2 border rounded-lg">
+                    <label for="updatedAtFilter" class="block text-gray-700 font-medium mb-1 text-sm">Fecha de Actualización</label>
+                    <input type="date" id="updatedAtFilter" class="w-full p-2 border rounded-lg text-sm">
                 </div>
             </div>
-            <p id="adminMessage" class="text-sm text-center mb-4 hidden"></p>
+            <p id="adminMessage" class="text-sm text-center mb-3 hidden"></p>
             <div class="table-container">
-                <table class="w-full text-left text-gray-700">
+                <table class="w-full text-left text-gray-700 border-collapse">
                     <thead class="bg-gray-200 sticky top-0">
                         <tr>
-                            <th class="p-3 w-1/12">ID</th>
-                            <th class="p-3 w-1/12">Título</th>
-                            <th class="p-3 w-1/12">Descripción</th>
-                            <th class="p-3 w-1/12">Estado <i class="fas fa-info-circle ml-1 text-gray-500"></i></th>
-                            <th class="p-3 w-1/12">Prioridad <i class="fas fa-info-circle ml-1 text-gray-500"></i></th>
-                            <th class="p-3 w-1/12">Categoría</th>
-                            <th class="p-3 w-1/12">Usuario (Nombre)</th>
-                            <th class="p-3 w-1/12">Correo</th>
-                            <th class="p-3 w-1/12">Asignado a</th>
-                            <th class="p-3 w-1/12">Creado</th>
-                            <th class="p-3 w-1/12">Actualizado</th>
-                            <th class="p-3 w-1/12">Acciones</th>
+                            <th class="p-2 w-1/12 text-sm">ID</th>
+                            <th class="p-2 w-1/12 text-sm">Título</th>
+                            <th class="p-2 w-1/12 text-sm">Descripción</th>
+                            <th class="p-2 w-1/12 text-sm">Estado <i class="fas fa-info-circle ml-1 text-gray-500 text-xs"></i></th>
+                            <th class="p-2 w-1/12 text-sm">Prioridad <i class="fas fa-info-circle ml-1 text-gray-500 text-xs"></i></th>
+                            <th class="p-2 w-1/12 text-sm">Categoría</th>
+                            <th class="p-2 w-1/12 text-sm">Usuario (Nombre)</th>
+                            <th class="p-2 w-1/12 text-sm">Correo</th>
+                            <th class="p-2 w-1/12 text-sm">Asignado a</th>
+                            <th class="p-2 w-1/12 text-sm">Creado</th>
+                            <th class="p-2 w-1/12 text-sm">Actualizado</th>
+                            <th class="p-2 w-1/12 text-sm">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="ticketTable"></tbody>
@@ -347,39 +349,39 @@
                                         ticket.priority === 'media' ? 'fa-exclamation' : 'fa-check';
 
                     const row = `
-                        <tr class="border-b ${isEditing ? 'edit-mode' : ''}" data-id="${ticket.id}">
-                            <td class="p-3">${ticket.id}</td>
-                            <td class="p-3">${ticket.title}</td>
-                            <td class="p-3">${ticket.description}</td>
-                            <td class="p-3">
-                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="status">
-                                    <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo <i class="fas ${statusIcon} ${statusClass} ml-1"></i></option>
-                                    <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso <i class="fas ${statusIcon} ${statusClass} ml-1"></i></option>
-                                    <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto <i class="fas ${statusIcon} ${statusClass} ml-1"></i></option>
+                        <tr class="border-b border-gray-200 ${isEditing ? 'edit-mode' : ''}" data-id="${ticket.id}">
+                            <td class="p-2 text-sm">${ticket.id}</td>
+                            <td class="p-2 text-sm">${ticket.title}</td>
+                            <td class="p-2 text-sm">${ticket.description}</td>
+                            <td class="p-2 text-sm">
+                                <select class="editable p-1 border rounded text-sm" ${isEditing ? '' : 'disabled'} data-field="status">
+                                    <option value="nuevo" ${ticket.status === 'nuevo' ? 'selected' : ''}>Nuevo <i class="fas ${statusIcon} ${statusClass} ml-1 text-sm"></i></option>
+                                    <option value="en progreso" ${ticket.status === 'en progreso' ? 'selected' : ''}>En Progreso <i class="fas ${statusIcon} ${statusClass} ml-1 text-sm"></i></option>
+                                    <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto <i class="fas ${statusIcon} ${statusClass} ml-1 text-sm"></i></option>
                                 </select>
                             </td>
-                            <td class="p-3">
-                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="priority">
-                                    <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></option>
-                                    <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></option>
-                                    <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta <i class="fas ${priorityIcon} ${priorityClass} ml-1"></i></option>
+                            <td class="p-2 text-sm">
+                                <select class="editable p-1 border rounded text-sm" ${isEditing ? '' : 'disabled'} data-field="priority">
+                                    <option value="baja" ${ticket.priority === 'baja' ? 'selected' : ''}>Baja <i class="fas ${priorityIcon} ${priorityClass} ml-1 text-sm"></i></option>
+                                    <option value="media" ${ticket.priority === 'media' ? 'selected' : ''}>Media <i class="fas ${priorityIcon} ${priorityClass} ml-1 text-sm"></i></option>
+                                    <option value="alta" ${ticket.priority === 'alta' ? 'selected' : ''}>Alta <i class="fas ${priorityIcon} ${priorityClass} ml-1 text-sm"></i></option>
                                 </select>
                             </td>
-                            <td class="p-3">${ticket.category}</td>
-                            <td class="p-3">${ticket.username}</td>
-                            <td class="p-3">${ticket.email}</td>
-                            <td class="p-3">
-                                <select class="editable p-1 border rounded" ${isEditing ? '' : 'disabled'} data-field="assigned_to">
+                            <td class="p-2 text-sm">${ticket.category}</td>
+                            <td class="p-2 text-sm">${ticket.username}</td>
+                            <td class="p-2 text-sm">${ticket.email}</td>
+                            <td class="p-2 text-sm">
+                                <select class="editable p-1 border rounded text-sm" ${isEditing ? '' : 'disabled'} data-field="assigned_to">
                                     <option value="">Sin asignar</option>
                                     ${admins.map(admin => `<option value="${admin.id}" ${ticket.assigned_to === admin.id ? 'selected' : ''}>${admin.email}</option>`).join('')}
                                 </select>
                             </td>
-                            <td class="p-3">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</td>
-                            <td class="p-3">${ticket.updated_at ? new Date(ticket.updated_at).toLocaleString() : 'N/A'}</td>
-                            <td class="p-3">
+                            <td class="p-2 text-sm">${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : 'N/A'}</td>
+                            <td class="p-2 text-sm">${ticket.updated_at ? new Date(ticket.updated_at).toLocaleString() : 'N/A'}</td>
+                            <td class="p-2 text-sm">
                                 ${isEditing ? 
-                                    `<button class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-300 save-btn" data-id="${ticket.id}"><i class="fas fa-save mr-1"></i> Guardar</button>` :
-                                    `<button class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300 edit-btn" data-id="${ticket.id}"><i class="fas fa-edit mr-1"></i> Editar</button>`
+                                    `<button class="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300 save-btn" data-id="${ticket.id}"><i class="fas fa-save mr-1 text-sm"></i> Guardar</button>` :
+                                    `<button class="bg-blue-500 text-white p-1.5 rounded hover:bg-blue-600 transition duration-300 edit-btn" data-id="${ticket.id}"><i class="fas fa-edit mr-1 text-sm"></i> Editar</button>`
                                 }
                             </td>
                         </tr>
@@ -387,7 +389,7 @@
                     ticketTable.insertAdjacentHTML('beforeend', row);
                 });
                 if (paginatedTickets.length === 0) {
-                    ticketTable.innerHTML = '<tr><td colspan="12" class="p-3 text-center text-gray-500">No hay tickets que coincidan con los filtros.</td></tr>';
+                    ticketTable.innerHTML = '<tr><td colspan="12" class="p-2 text-center text-gray-500 text-sm">No hay tickets que coincidan con los filtros.</td></tr>';
                 }
 
                 // Añadir eventos dinámicos después de renderizar
@@ -419,14 +421,14 @@
                     }
                 });
                 prevButton.disabled = currentPage === 1;
-                prevButton.classList.add('bg-gray-200', 'hover:bg-gray-300');
+                prevButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-sm');
                 pagination.appendChild(prevButton);
 
                 for (let i = 1; i <= totalPages; i++) {
                     const pageButton = document.createElement('button');
                     pageButton.textContent = i;
                     pageButton.classList.toggle('active', i === currentPage);
-                    pageButton.classList.add('bg-gray-200', 'hover:bg-gray-300');
+                    pageButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-sm');
                     if (i === currentPage) pageButton.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
                     pageButton.addEventListener('click', () => {
                         currentPage = i;
@@ -446,7 +448,7 @@
                     }
                 });
                 nextButton.disabled = currentPage === totalPages;
-                nextButton.classList.add('bg-gray-200', 'hover:bg-gray-300');
+                nextButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-sm');
                 pagination.appendChild(nextButton);
             }
 
@@ -514,7 +516,7 @@
 
             function showMessage(text, className) {
                 adminMessage.textContent = text;
-                adminMessage.className = `text-sm text-center mb-4 ${className}`;
+                adminMessage.className = `text-sm text-center mb-3 ${className}`;
                 adminMessage.classList.remove('hidden');
                 setTimeout(() => adminMessage.classList.add('hidden'), 3000);
             }
