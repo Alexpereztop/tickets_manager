@@ -130,14 +130,16 @@
 
             let isLoginMode = true;
 
-            toggleForm.addEventListener('click', () => {
-                isLoginMode = !isLoginMode;
-                roleSection.classList.toggle('hidden');
-                loginBtn.classList.toggle('hidden');
-                registerBtn.classList.toggle('hidden');
-                toggleForm.textContent = isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
-                authMessage.classList.add('hidden');
-            });
+            if (toggleForm) {
+                toggleForm.addEventListener('click', () => {
+                    isLoginMode = !isLoginMode;
+                    roleSection.classList.toggle('hidden');
+                    loginBtn.classList.toggle('hidden');
+                    registerBtn.classList.toggle('hidden');
+                    toggleForm.textContent = isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
+                    authMessage.classList.add('hidden');
+                });
+            }
 
             if (loginBtn) {
                 loginBtn.addEventListener('click', () => {
@@ -148,6 +150,7 @@
                             const user = userCredential.user;
                             const userDoc = await getDoc(doc(db, 'users', user.uid));
                             const role = userDoc.exists() ? userDoc.data().role : 'client';
+                            console.log('Rol del usuario al iniciar sesión:', role); // Depuración
                             showMessage('¡Inicio de sesión exitoso!', 'text-green-500');
                             setTimeout(() => {
                                 window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
@@ -176,6 +179,7 @@
                 if (user) {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const role = userDoc.exists() ? userDoc.data().role : 'client';
+                    console.log('Rol del usuario en onAuthStateChanged:', role); // Depuración
                     clientLink.classList.toggle('hidden', role !== 'client');
                     adminLink.classList.toggle('hidden', role !== 'admin');
                     profileLink.classList.remove('hidden');
