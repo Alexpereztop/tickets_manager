@@ -82,16 +82,7 @@
             </div>
             
             <div class="p-8">
-                <div id="authTabs" class="flex border-b border-gray-200 mb-6">
-                    <button id="loginTab" class="flex-1 py-2 text-center text-blue-600 border-b-2 border-blue-600 font-medium">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
-                    </button>
-                    <button id="registerTab" class="flex-1 py-2 text-center text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-user-plus mr-2"></i> Registrarse
-                    </button>
-                </div>
-                
-                <div id="authMessage" class="text-center text-sm mb-4 hidden p-3 rounded-lg"></div>
+                <p id="authMessage" class="text-center text-sm mb-4 p-3 rounded-lg hidden"></p>
                 
                 <div id="authForm">
                     <div class="mb-4">
@@ -114,11 +105,7 @@
                             <div class="absolute left-3 top-3 text-gray-400">
                                 <i class="fas fa-lock"></i>
                             </div>
-                            <button id="togglePassword" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">La contraseña debe tener al menos 6 caracteres</p>
                     </div>
                     <div id="roleSection" class="mb-6 hidden">
                         <label for="role" class="block text-gray-700 font-medium mb-2">
@@ -144,18 +131,8 @@
                         <i class="fas fa-user-plus mr-2"></i> Registrarse
                     </button>
                     
-                    <div class="mt-6 flex items-center justify-between">
-                        <hr class="flex-grow border-gray-200">
-                        <span class="px-3 text-gray-500 text-sm">O</span>
-                        <hr class="flex-grow border-gray-200">
-                    </div>
-                    
-                    <button id="googleLoginBtn" class="w-full bg-white text-gray-700 p-3 rounded-lg mt-4 hover:bg-gray-50 transition duration-300 border border-gray-300 flex items-center justify-center">
-                        <i class="fab fa-google mr-2 text-red-500"></i> Continuar con Google
-                    </button>
-                    
-                    <p id="forgotPassword" class="text-center text-blue-500 cursor-pointer mt-4 hover:underline text-sm">
-                        ¿Olvidaste tu contraseña?
+                    <p id="toggleForm" class="text-center text-blue-500 cursor-pointer mt-4 hover:underline">
+                        ¿No tienes cuenta? Regístrate
                     </p>
                 </div>
             </div>
@@ -181,7 +158,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -196,26 +173,16 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Elementos básicos
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
+            const toggleForm = document.getElementById('toggleForm');
             const roleSection = document.getElementById('roleSection');
             const authMessage = document.getElementById('authMessage');
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const roleSelect = document.getElementById('role');
-            
-            // Nuevos elementos
-            const loginTab = document.getElementById('loginTab');
-            const registerTab = document.getElementById('registerTab');
-            const togglePassword = document.getElementById('togglePassword');
-            const googleLoginBtn = document.getElementById('googleLoginBtn');
-            const forgotPassword = document.getElementById('forgotPassword');
-            
-            // Elementos de navegación
             const clientLink = document.getElementById('clientLink');
             const adminLink = document.getElementById('adminLink');
             const profileLink = document.getElementById('profileLink');
@@ -227,208 +194,67 @@
             const menuToggle = document.getElementById('menuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
 
-            // Manejar toggle del menú móvil
             if (menuToggle) {
                 menuToggle.addEventListener('click', () => {
                     mobileMenu.classList.toggle('hidden');
                 });
             }
 
-            // Cerrar sesión
             if (logoutLink) logoutLink.addEventListener('click', () => signOut(auth));
             if (logoutLinkMobile) logoutLinkMobile.addEventListener('click', () => signOut(auth));
 
-            // Alternar visibilidad de la contraseña
-            if (togglePassword) {
-                togglePassword.addEventListener('click', () => {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-                });
-            }
+            let isLoginMode = true;
 
-            // Controlar pestañas de login/registro
-            if (loginTab && registerTab) {
-                loginTab.addEventListener('click', () => {
-                    loginTab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-                    loginTab.classList.remove('text-gray-500');
-                    registerTab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-                    registerTab.classList.add('text-gray-500');
-                    
-                    roleSection.classList.add('hidden');
-                    loginBtn.classList.remove('hidden');
-                    registerBtn.classList.add('hidden');
-                    authMessage.classList.add('hidden');
-                });
-                
-                registerTab.addEventListener('click', () => {
-                    registerTab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-                    registerTab.classList.remove('text-gray-500');
-                    loginTab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-                    loginTab.classList.add('text-gray-500');
-                    
-                    roleSection.classList.remove('hidden');
-                    loginBtn.classList.add('hidden');
-                    registerBtn.classList.remove('hidden');
+            if (toggleForm) {
+                toggleForm.addEventListener('click', () => {
+                    isLoginMode = !isLoginMode;
+                    roleSection.classList.toggle('hidden');
+                    loginBtn.classList.toggle('hidden');
+                    registerBtn.classList.toggle('hidden');
+                    toggleForm.textContent = isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
                     authMessage.classList.add('hidden');
                 });
             }
 
-            // Iniciar sesión
             if (loginBtn) {
                 loginBtn.addEventListener('click', () => {
                     const email = emailInput.value;
                     const password = passwordInput.value;
-                    
-                    if (!email || !password) {
-                        showMessage('Por favor, completa todos los campos', 'bg-red-100 text-red-700');
-                        return;
-                    }
-                    
-                    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Iniciando sesión...';
-                    loginBtn.disabled = true;
-                    
                     signInWithEmailAndPassword(auth, email, password)
                         .then(async (userCredential) => {
                             const user = userCredential.user;
                             const userDoc = await getDoc(doc(db, 'users', user.uid));
                             const role = userDoc.exists() ? userDoc.data().role : 'client';
-                            console.log('Rol del usuario al iniciar sesión:', role);
+                            console.log('Rol del usuario al iniciar sesión:', role); // Depuración
                             showMessage('¡Inicio de sesión exitoso!', 'bg-green-100 text-green-700');
                             setTimeout(() => {
                                 window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
                             }, 1000);
                         })
-                        .catch(error => {
-                            let errorMessage = 'Error al iniciar sesión';
-                            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                                errorMessage = 'Correo electrónico o contraseña incorrectos';
-                            } else if (error.code === 'auth/too-many-requests') {
-                                errorMessage = 'Demasiados intentos fallidos. Intenta más tarde';
-                            }
-                            showMessage(errorMessage, 'bg-red-100 text-red-700');
-                            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión';
-                            loginBtn.disabled = false;
-                        });
+                        .catch(error => showMessage(`Error: ${error.message}`, 'bg-red-100 text-red-700'));
                 });
             }
 
-            // Registro
             if (registerBtn) {
                 registerBtn.addEventListener('click', () => {
                     const email = emailInput.value;
                     const password = passwordInput.value;
                     const role = roleSelect.value;
-                    
-                    if (!email || !password) {
-                        showMessage('Por favor, completa todos los campos', 'bg-red-100 text-red-700');
-                        return;
-                    }
-                    
-                    if (password.length < 6) {
-                        showMessage('La contraseña debe tener al menos 6 caracteres', 'bg-red-100 text-red-700');
-                        return;
-                    }
-                    
-                    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registrando...';
-                    registerBtn.disabled = true;
-                    
                     createUserWithEmailAndPassword(auth, email, password)
                         .then(userCredential => {
                             const user = userCredential.user;
-                            return setDoc(doc(db, 'users', user.uid), { 
-                                email, 
-                                role,
-                                createdAt: new Date().toISOString(),
-                                displayName: email.split('@')[0]
-                            });
+                            return setDoc(doc(db, 'users', user.uid), { email, role });
                         })
-                        .then(() => {
-                            showMessage('¡Registro exitoso! Ya puedes iniciar sesión', 'bg-green-100 text-green-700');
-                            // Limpiar campos
-                            emailInput.value = '';
-                            passwordInput.value = '';
-                            // Cambiar a la pestaña de login
-                            loginTab.click();
-                            registerBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Registrarse';
-                            registerBtn.disabled = false;
-                        })
-                        .catch(error => {
-                            let errorMessage = 'Error al registrarse';
-                            if (error.code === 'auth/email-already-in-use') {
-                                errorMessage = 'Este correo electrónico ya está en uso';
-                            } else if (error.code === 'auth/invalid-email') {
-                                errorMessage = 'Formato de correo electrónico inválido';
-                            } else if (error.code === 'auth/weak-password') {
-                                errorMessage = 'La contraseña es demasiado débil';
-                            }
-                            showMessage(errorMessage, 'bg-red-100 text-red-700');
-                            registerBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Registrarse';
-                            registerBtn.disabled = false;
-                        });
+                        .then(() => showMessage('¡Registro exitoso! Inicia sesión.', 'bg-green-100 text-green-700'))
+                        .catch(error => showMessage(`Error: ${error.message}`, 'bg-red-100 text-red-700'));
                 });
             }
 
-            // Iniciar sesión con Google
-            if (googleLoginBtn) {
-                googleLoginBtn.addEventListener('click', () => {
-                    googleLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Conectando...';
-                    googleLoginBtn.disabled = true;
-                    
-                    signInWithPopup(auth, googleProvider)
-                        .then(async (result) => {
-                            const user = result.user;
-                            const userDoc = await getDoc(doc(db, 'users', user.uid));
-                            
-                            if (!userDoc.exists()) {
-                                // Usuario nuevo con Google, asignar rol por defecto
-                                await setDoc(doc(db, 'users', user.uid), {
-                                    email: user.email,
-                                    role: 'client', // Rol por defecto
-                                    createdAt: new Date().toISOString(),
-                                    displayName: user.displayName || user.email.split('@')[0],
-                                    photoURL: user.photoURL
-                                });
-                            }
-                            
-                            const role = userDoc.exists() ? userDoc.data().role : 'client';
-                            showMessage('¡Inicio de sesión exitoso!', 'bg-green-100 text-green-700');
-                            setTimeout(() => {
-                                window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
-                            }, 1000);
-                        })
-                        .catch(error => {
-                            showMessage('Error al iniciar sesión con Google', 'bg-red-100 text-red-700');
-                            googleLoginBtn.innerHTML = '<i class="fab fa-google mr-2 text-red-500"></i> Continuar con Google';
-                            googleLoginBtn.disabled = false;
-                        });
-                });
-            }
-
-            // Enlace de contraseña olvidada
-            if (forgotPassword) {
-                forgotPassword.addEventListener('click', () => {
-                    const email = emailInput.value;
-                    if (!email) {
-                        showMessage('Ingresa tu correo para recuperar la contraseña', 'bg-blue-100 text-blue-700');
-                        return;
-                    }
-                    
-                    // Aquí iría la lógica para resetear contraseña
-                    // auth.sendPasswordResetEmail(email) ...
-                    
-                    showMessage('Funcionalidad en desarrollo. Contacta al administrador.', 'bg-yellow-100 text-yellow-700');
-                });
-            }
-
-            // Detectar cambios en la autenticación
             onAuthStateChanged(auth, async user => {
                 if (user) {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const role = userDoc.exists() ? userDoc.data().role : 'client';
-                    console.log('Rol del usuario en onAuthStateChanged:', role);
-                    
-                    // Actualizar navegación según el rol
+                    console.log('Rol del usuario en onAuthStateChanged:', role); // Depuración
                     clientLink.classList.toggle('hidden', role !== 'client');
                     adminLink.classList.toggle('hidden', role !== 'admin');
                     profileLink.classList.remove('hidden');
@@ -437,41 +263,14 @@
                     adminLinkMobile.classList.toggle('hidden', role !== 'admin');
                     profileLinkMobile.classList.remove('hidden');
                     logoutLinkMobile.classList.remove('hidden');
-                    
-                    // Configurar enlaces
                     clientLink.href = 'client.html';
                     adminLink.href = 'admin.html';
                     profileLink.href = 'profile.html';
-                    clientLinkMobile.href = 'client.html';
-                    adminLinkMobile.href = 'admin.html';
-                    profileLinkMobile.href = 'profile.html';
-                    
-                    // Ocultar formulario de autenticación si el usuario ya está autenticado
-                    const authFormContainer = document.querySelector('main > div');
-                    if (authFormContainer) {
-                        authFormContainer.innerHTML = `
-                            <div class="bg-white shadow-xl rounded-lg p-8 w-full max-w-md fade-in">
-                                <div class="text-center">
-                                    <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
-                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Ya has iniciado sesión!</h2>
-                                    <p class="text-gray-600 mb-6">Estás conectado como ${user.email}</p>
-                                    <div class="flex flex-col space-y-4">
-                                        <a href="${role === 'admin' ? 'admin.html' : 'client.html'}" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center justify-center">
-                                            <i class="fas fa-arrow-right mr-2"></i> Ir al panel principal
-                                        </a>
-                                        <button id="logoutBtnMain" class="border border-red-500 text-red-500 py-2 px-4 rounded-lg hover:bg-red-50 transition flex items-center justify-center">
-                                            <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Añadir evento de cierre de sesión
-                        document.getElementById('logoutBtnMain')?.addEventListener('click', () => signOut(auth));
-                    }
+                    // Comentado para evitar redirección inmediata si ya estás en index.html
+                    // if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+                    //     window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
+                    // }
                 } else {
-                    // Usuario no autenticado, ocultar elementos de navegación
                     clientLink.classList.add('hidden');
                     adminLink.classList.add('hidden');
                     profileLink.classList.add('hidden');
@@ -483,24 +282,14 @@
                 }
             });
 
-            // Función para mostrar mensajes
             function showMessage(text, className) {
                 authMessage.textContent = text;
                 authMessage.className = `text-center text-sm mb-4 p-3 rounded-lg ${className}`;
                 authMessage.classList.remove('hidden');
-                
-                // Hacer scroll al mensaje
-                authMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Ocultar mensaje después de 5 segundos
-                setTimeout(() => {
-                    authMessage.classList.add('hidden');
-                }, 5000);
             }
         });
     </script>
 
-    <!-- Chatbot para soporte -->
     <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
     <script src="https://files.bpcontent.cloud/2025/04/09/03/20250409031905-WE53XYZZ.js"></script>
     </body>
