@@ -10,80 +10,178 @@
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .nav-link:hover { color: #3b82f6; transition: color 0.3s; }
+        .bg-pattern {
+            background-color: #f9fafb;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .btn-animated:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+        }
+        .btn-animated {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-pattern min-h-screen flex flex-col">
     <nav class="bg-white shadow-lg p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="text-2xl font-bold text-gray-800">
-                <i class="fas fa-ticket-alt mr-2 text-blue-500"></i> Tickets
+            <div class="text-2xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-ticket-alt mr-2 text-blue-600"></i> 
+                <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Ticket System</span>
             </div>
             <div class="hidden md:flex space-x-6">
-                <a href="#" id="homeLink" class="nav-link text-gray-600">Inicio</a>
-                <a href="#" id="clientLink" class="nav-link text-gray-600 hidden">Clientes</a>
-                <a href="#" id="adminLink" class="nav-link text-gray-600 hidden">Administradores</a>
-                <a href="#" id="profileLink" class="nav-link text-gray-600 hidden">Perfil</a>
-                <a href="#" id="logoutLink" class="nav-link text-red-500 hidden">Cerrar Sesión</a>
+                <a href="#" id="homeLink" class="nav-link text-gray-600 hover:text-blue-600 transition-all duration-300 flex items-center">
+                    <i class="fas fa-home mr-1"></i> Inicio
+                </a>
+                <a href="#" id="clientLink" class="nav-link text-gray-600 hover:text-blue-600 transition-all duration-300 hidden flex items-center">
+                    <i class="fas fa-user mr-1"></i> Clientes
+                </a>
+                <a href="#" id="adminLink" class="nav-link text-gray-600 hover:text-blue-600 transition-all duration-300 hidden flex items-center">
+                    <i class="fas fa-cog mr-1"></i> Administradores
+                </a>
+                <a href="#" id="profileLink" class="nav-link text-gray-600 hover:text-blue-600 transition-all duration-300 hidden flex items-center">
+                    <i class="fas fa-user-circle mr-1"></i> Perfil
+                </a>
+                <a href="#" id="logoutLink" class="nav-link text-red-500 hover:text-red-700 transition-all duration-300 hidden flex items-center">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Cerrar Sesión
+                </a>
             </div>
             <div class="md:hidden">
-                <button id="menuToggle" class="text-gray-600 focus:outline-none">
+                <button id="menuToggle" class="text-gray-600 focus:outline-none hover:text-blue-600 transition-all duration-300">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
             </div>
         </div>
-        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4">
-            <a href="#" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link">Inicio</a>
-            <a href="#" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Clientes</a>
-            <a href="#" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Administradores</a>
-            <a href="#" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hidden">Perfil</a>
-            <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hidden">Cerrar Sesión</a>
+        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg p-4 rounded-lg mt-2 border-t border-gray-100">
+            <a href="#" id="homeLinkMobile" class="block py-2 text-gray-600 nav-link hover:text-blue-600 transition-all duration-300 flex items-center">
+                <i class="fas fa-home mr-2"></i> Inicio
+            </a>
+            <a href="#" id="clientLinkMobile" class="block py-2 text-gray-600 nav-link hover:text-blue-600 transition-all duration-300 hidden flex items-center">
+                <i class="fas fa-user mr-2"></i> Clientes
+            </a>
+            <a href="#" id="adminLinkMobile" class="block py-2 text-gray-600 nav-link hover:text-blue-600 transition-all duration-300 hidden flex items-center">
+                <i class="fas fa-cog mr-2"></i> Administradores
+            </a>
+            <a href="#" id="profileLinkMobile" class="block py-2 text-gray-600 nav-link hover:text-blue-600 transition-all duration-300 hidden flex items-center">
+                <i class="fas fa-user-circle mr-2"></i> Perfil
+            </a>
+            <a href="#" id="logoutLinkMobile" class="block py-2 text-red-500 nav-link hover:text-red-700 transition-all duration-300 hidden flex items-center">
+                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+            </a>
         </div>
     </nav>
 
-    <main class="flex-grow flex items-center justify-center py-10">
-        <div class="bg-white shadow-xl rounded-lg p-8 w-full max-w-md fade-in">
-            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
-                <i class="fas fa-sign-in-alt mr-2 text-blue-500"></i> Inicio de Sesión / Registro
-            </h1>
-            <p id="authMessage" class="text-center text-sm mb-4 hidden"></p>
-            <div id="authForm">
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 font-medium mb-2">
-                        <i class="fas fa-envelope mr-2"></i> Correo Electrónico
-                    </label>
-                    <input type="email" id="email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="tu@ejemplo.com">
+    <main class="flex-grow flex items-center justify-center py-10 px-4">
+        <div class="bg-white shadow-2xl rounded-lg overflow-hidden w-full max-w-md fade-in border border-gray-100">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+                <h1 class="text-3xl font-bold text-center">
+                    <i class="fas fa-ticket-alt mr-2"></i> Sistema de Tickets
+                </h1>
+                <p class="text-center opacity-90 mt-2">Plataforma de soporte y gestión de incidencias</p>
+            </div>
+            
+            <div class="p-8">
+                <div id="authTabs" class="flex border-b border-gray-200 mb-6">
+                    <button id="loginTab" class="flex-1 py-2 text-center text-blue-600 border-b-2 border-blue-600 font-medium">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+                    </button>
+                    <button id="registerTab" class="flex-1 py-2 text-center text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-user-plus mr-2"></i> Registrarse
+                    </button>
                 </div>
-                <div class="mb-6">
-                    <label for="password" class="block text-gray-700 font-medium mb-2">
-                        <i class="fas fa-lock mr-2"></i> Contraseña
-                    </label>
-                    <input type="password" id="password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+                
+                <div id="authMessage" class="text-center text-sm mb-4 hidden p-3 rounded-lg"></div>
+                
+                <div id="authForm">
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-envelope mr-2 text-blue-500"></i> Correo Electrónico
+                        </label>
+                        <div class="relative">
+                            <input type="email" id="email" class="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300" placeholder="tu@ejemplo.com">
+                            <div class="absolute left-3 top-3 text-gray-400">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-lock mr-2 text-blue-500"></i> Contraseña
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" class="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300" placeholder="••••••••">
+                            <div class="absolute left-3 top-3 text-gray-400">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <button id="togglePassword" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">La contraseña debe tener al menos 6 caracteres</p>
+                    </div>
+                    <div id="roleSection" class="mb-6 hidden">
+                        <label for="role" class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-user-tag mr-2 text-blue-500"></i> Rol
+                        </label>
+                        <div class="relative">
+                            <select id="role" class="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 appearance-none">
+                                <option value="client">Cliente</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                            <div class="absolute left-3 top-3 text-gray-400">
+                                <i class="fas fa-user-tag"></i>
+                            </div>
+                            <div class="absolute right-3 top-3 text-gray-400 pointer-events-none">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="loginBtn" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg hover:opacity-90 transition duration-300 btn-animated flex items-center justify-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+                    </button>
+                    <button id="registerBtn" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg hover:opacity-90 transition duration-300 btn-animated flex items-center justify-center hidden">
+                        <i class="fas fa-user-plus mr-2"></i> Registrarse
+                    </button>
+                    
+                    <div class="mt-6 flex items-center justify-between">
+                        <hr class="flex-grow border-gray-200">
+                        <span class="px-3 text-gray-500 text-sm">O</span>
+                        <hr class="flex-grow border-gray-200">
+                    </div>
+                    
+                    <button id="googleLoginBtn" class="w-full bg-white text-gray-700 p-3 rounded-lg mt-4 hover:bg-gray-50 transition duration-300 border border-gray-300 flex items-center justify-center">
+                        <i class="fab fa-google mr-2 text-red-500"></i> Continuar con Google
+                    </button>
+                    
+                    <p id="forgotPassword" class="text-center text-blue-500 cursor-pointer mt-4 hover:underline text-sm">
+                        ¿Olvidaste tu contraseña?
+                    </p>
                 </div>
-                <div id="roleSection" class="mb-6 hidden">
-                    <label for="role" class="block text-gray-700 font-medium mb-2">
-                        <i class="fas fa-user mr-2"></i> Rol
-                    </label>
-                    <select id="role" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="client">Cliente</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                </div>
-                <button id="loginBtn" class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300">
-                    <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
-                </button>
-                <button id="registerBtn" class="w-full bg-gray-200 text-gray-700 p-3 rounded-lg mt-3 hover:bg-gray-300 transition duration-300 hidden">
-                    <i class="fas fa-user-plus mr-2"></i> Registrarse
-                </button>
-                <p id="toggleForm" class="text-center text-blue-500 cursor-pointer mt-4 hover:underline">
-                    ¿No tienes cuenta? Regístrate
-                </p>
             </div>
         </div>
     </main>
 
+    <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-600 text-sm">
+            <p>&copy; 2025 Sistema de Tickets. Todos los derechos reservados.</p>
+            <div class="flex justify-center mt-2 space-x-4">
+                <a href="#" class="text-gray-500 hover:text-blue-600 transition-all duration-300">
+                    <i class="fas fa-question-circle"></i> Ayuda
+                </a>
+                <a href="#" class="text-gray-500 hover:text-blue-600 transition-all duration-300">
+                    <i class="fas fa-shield-alt"></i> Privacidad
+                </a>
+                <a href="#" class="text-gray-500 hover:text-blue-600 transition-all duration-300">
+                    <i class="fas fa-file-contract"></i> Términos
+                </a>
+            </div>
+        </div>
+    </footer>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -98,16 +196,26 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Elementos básicos
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
-            const toggleForm = document.getElementById('toggleForm');
             const roleSection = document.getElementById('roleSection');
             const authMessage = document.getElementById('authMessage');
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const roleSelect = document.getElementById('role');
+            
+            // Nuevos elementos
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const togglePassword = document.getElementById('togglePassword');
+            const googleLoginBtn = document.getElementById('googleLoginBtn');
+            const forgotPassword = document.getElementById('forgotPassword');
+            
+            // Elementos de navegación
             const clientLink = document.getElementById('clientLink');
             const adminLink = document.getElementById('adminLink');
             const profileLink = document.getElementById('profileLink');
@@ -119,67 +227,208 @@
             const menuToggle = document.getElementById('menuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
 
+            // Manejar toggle del menú móvil
             if (menuToggle) {
                 menuToggle.addEventListener('click', () => {
                     mobileMenu.classList.toggle('hidden');
                 });
             }
 
+            // Cerrar sesión
             if (logoutLink) logoutLink.addEventListener('click', () => signOut(auth));
             if (logoutLinkMobile) logoutLinkMobile.addEventListener('click', () => signOut(auth));
 
-            let isLoginMode = true;
+            // Alternar visibilidad de la contraseña
+            if (togglePassword) {
+                togglePassword.addEventListener('click', () => {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            }
 
-            if (toggleForm) {
-                toggleForm.addEventListener('click', () => {
-                    isLoginMode = !isLoginMode;
-                    roleSection.classList.toggle('hidden');
-                    loginBtn.classList.toggle('hidden');
-                    registerBtn.classList.toggle('hidden');
-                    toggleForm.textContent = isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
+            // Controlar pestañas de login/registro
+            if (loginTab && registerTab) {
+                loginTab.addEventListener('click', () => {
+                    loginTab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                    loginTab.classList.remove('text-gray-500');
+                    registerTab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                    registerTab.classList.add('text-gray-500');
+                    
+                    roleSection.classList.add('hidden');
+                    loginBtn.classList.remove('hidden');
+                    registerBtn.classList.add('hidden');
+                    authMessage.classList.add('hidden');
+                });
+                
+                registerTab.addEventListener('click', () => {
+                    registerTab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                    registerTab.classList.remove('text-gray-500');
+                    loginTab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                    loginTab.classList.add('text-gray-500');
+                    
+                    roleSection.classList.remove('hidden');
+                    loginBtn.classList.add('hidden');
+                    registerBtn.classList.remove('hidden');
                     authMessage.classList.add('hidden');
                 });
             }
 
+            // Iniciar sesión
             if (loginBtn) {
                 loginBtn.addEventListener('click', () => {
                     const email = emailInput.value;
                     const password = passwordInput.value;
+                    
+                    if (!email || !password) {
+                        showMessage('Por favor, completa todos los campos', 'bg-red-100 text-red-700');
+                        return;
+                    }
+                    
+                    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Iniciando sesión...';
+                    loginBtn.disabled = true;
+                    
                     signInWithEmailAndPassword(auth, email, password)
                         .then(async (userCredential) => {
                             const user = userCredential.user;
                             const userDoc = await getDoc(doc(db, 'users', user.uid));
                             const role = userDoc.exists() ? userDoc.data().role : 'client';
-                            console.log('Rol del usuario al iniciar sesión:', role); // Depuración
-                            showMessage('¡Inicio de sesión exitoso!', 'text-green-500');
+                            console.log('Rol del usuario al iniciar sesión:', role);
+                            showMessage('¡Inicio de sesión exitoso!', 'bg-green-100 text-green-700');
                             setTimeout(() => {
                                 window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
                             }, 1000);
                         })
-                        .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
+                        .catch(error => {
+                            let errorMessage = 'Error al iniciar sesión';
+                            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                                errorMessage = 'Correo electrónico o contraseña incorrectos';
+                            } else if (error.code === 'auth/too-many-requests') {
+                                errorMessage = 'Demasiados intentos fallidos. Intenta más tarde';
+                            }
+                            showMessage(errorMessage, 'bg-red-100 text-red-700');
+                            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión';
+                            loginBtn.disabled = false;
+                        });
                 });
             }
 
+            // Registro
             if (registerBtn) {
                 registerBtn.addEventListener('click', () => {
                     const email = emailInput.value;
                     const password = passwordInput.value;
                     const role = roleSelect.value;
+                    
+                    if (!email || !password) {
+                        showMessage('Por favor, completa todos los campos', 'bg-red-100 text-red-700');
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        showMessage('La contraseña debe tener al menos 6 caracteres', 'bg-red-100 text-red-700');
+                        return;
+                    }
+                    
+                    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registrando...';
+                    registerBtn.disabled = true;
+                    
                     createUserWithEmailAndPassword(auth, email, password)
                         .then(userCredential => {
                             const user = userCredential.user;
-                            return setDoc(doc(db, 'users', user.uid), { email, role });
+                            return setDoc(doc(db, 'users', user.uid), { 
+                                email, 
+                                role,
+                                createdAt: new Date().toISOString(),
+                                displayName: email.split('@')[0]
+                            });
                         })
-                        .then(() => showMessage('¡Registro exitoso! Inicia sesión.', 'text-green-500'))
-                        .catch(error => showMessage(`Error: ${error.message}`, 'text-red-500'));
+                        .then(() => {
+                            showMessage('¡Registro exitoso! Ya puedes iniciar sesión', 'bg-green-100 text-green-700');
+                            // Limpiar campos
+                            emailInput.value = '';
+                            passwordInput.value = '';
+                            // Cambiar a la pestaña de login
+                            loginTab.click();
+                            registerBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Registrarse';
+                            registerBtn.disabled = false;
+                        })
+                        .catch(error => {
+                            let errorMessage = 'Error al registrarse';
+                            if (error.code === 'auth/email-already-in-use') {
+                                errorMessage = 'Este correo electrónico ya está en uso';
+                            } else if (error.code === 'auth/invalid-email') {
+                                errorMessage = 'Formato de correo electrónico inválido';
+                            } else if (error.code === 'auth/weak-password') {
+                                errorMessage = 'La contraseña es demasiado débil';
+                            }
+                            showMessage(errorMessage, 'bg-red-100 text-red-700');
+                            registerBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Registrarse';
+                            registerBtn.disabled = false;
+                        });
                 });
             }
 
+            // Iniciar sesión con Google
+            if (googleLoginBtn) {
+                googleLoginBtn.addEventListener('click', () => {
+                    googleLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Conectando...';
+                    googleLoginBtn.disabled = true;
+                    
+                    signInWithPopup(auth, googleProvider)
+                        .then(async (result) => {
+                            const user = result.user;
+                            const userDoc = await getDoc(doc(db, 'users', user.uid));
+                            
+                            if (!userDoc.exists()) {
+                                // Usuario nuevo con Google, asignar rol por defecto
+                                await setDoc(doc(db, 'users', user.uid), {
+                                    email: user.email,
+                                    role: 'client', // Rol por defecto
+                                    createdAt: new Date().toISOString(),
+                                    displayName: user.displayName || user.email.split('@')[0],
+                                    photoURL: user.photoURL
+                                });
+                            }
+                            
+                            const role = userDoc.exists() ? userDoc.data().role : 'client';
+                            showMessage('¡Inicio de sesión exitoso!', 'bg-green-100 text-green-700');
+                            setTimeout(() => {
+                                window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            showMessage('Error al iniciar sesión con Google', 'bg-red-100 text-red-700');
+                            googleLoginBtn.innerHTML = '<i class="fab fa-google mr-2 text-red-500"></i> Continuar con Google';
+                            googleLoginBtn.disabled = false;
+                        });
+                });
+            }
+
+            // Enlace de contraseña olvidada
+            if (forgotPassword) {
+                forgotPassword.addEventListener('click', () => {
+                    const email = emailInput.value;
+                    if (!email) {
+                        showMessage('Ingresa tu correo para recuperar la contraseña', 'bg-blue-100 text-blue-700');
+                        return;
+                    }
+                    
+                    // Aquí iría la lógica para resetear contraseña
+                    // auth.sendPasswordResetEmail(email) ...
+                    
+                    showMessage('Funcionalidad en desarrollo. Contacta al administrador.', 'bg-yellow-100 text-yellow-700');
+                });
+            }
+
+            // Detectar cambios en la autenticación
             onAuthStateChanged(auth, async user => {
                 if (user) {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const role = userDoc.exists() ? userDoc.data().role : 'client';
-                    console.log('Rol del usuario en onAuthStateChanged:', role); // Depuración
+                    console.log('Rol del usuario en onAuthStateChanged:', role);
+                    
+                    // Actualizar navegación según el rol
                     clientLink.classList.toggle('hidden', role !== 'client');
                     adminLink.classList.toggle('hidden', role !== 'admin');
                     profileLink.classList.remove('hidden');
@@ -188,14 +437,41 @@
                     adminLinkMobile.classList.toggle('hidden', role !== 'admin');
                     profileLinkMobile.classList.remove('hidden');
                     logoutLinkMobile.classList.remove('hidden');
+                    
+                    // Configurar enlaces
                     clientLink.href = 'client.html';
                     adminLink.href = 'admin.html';
                     profileLink.href = 'profile.html';
-                    // Comentado para evitar redirección inmediata si ya estás en index.html
-                    // if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-                    //     window.location.href = role === 'admin' ? 'admin.html' : 'client.html';
-                    // }
+                    clientLinkMobile.href = 'client.html';
+                    adminLinkMobile.href = 'admin.html';
+                    profileLinkMobile.href = 'profile.html';
+                    
+                    // Ocultar formulario de autenticación si el usuario ya está autenticado
+                    const authFormContainer = document.querySelector('main > div');
+                    if (authFormContainer) {
+                        authFormContainer.innerHTML = `
+                            <div class="bg-white shadow-xl rounded-lg p-8 w-full max-w-md fade-in">
+                                <div class="text-center">
+                                    <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Ya has iniciado sesión!</h2>
+                                    <p class="text-gray-600 mb-6">Estás conectado como ${user.email}</p>
+                                    <div class="flex flex-col space-y-4">
+                                        <a href="${role === 'admin' ? 'admin.html' : 'client.html'}" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center justify-center">
+                                            <i class="fas fa-arrow-right mr-2"></i> Ir al panel principal
+                                        </a>
+                                        <button id="logoutBtnMain" class="border border-red-500 text-red-500 py-2 px-4 rounded-lg hover:bg-red-50 transition flex items-center justify-center">
+                                            <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Añadir evento de cierre de sesión
+                        document.getElementById('logoutBtnMain')?.addEventListener('click', () => signOut(auth));
+                    }
                 } else {
+                    // Usuario no autenticado, ocultar elementos de navegación
                     clientLink.classList.add('hidden');
                     adminLink.classList.add('hidden');
                     profileLink.classList.add('hidden');
@@ -207,14 +483,24 @@
                 }
             });
 
+            // Función para mostrar mensajes
             function showMessage(text, className) {
                 authMessage.textContent = text;
-                authMessage.className = `text-center text-sm mb-4 ${className}`;
+                authMessage.className = `text-center text-sm mb-4 p-3 rounded-lg ${className}`;
                 authMessage.classList.remove('hidden');
+                
+                // Hacer scroll al mensaje
+                authMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Ocultar mensaje después de 5 segundos
+                setTimeout(() => {
+                    authMessage.classList.add('hidden');
+                }, 5000);
             }
         });
     </script>
 
+    <!-- Chatbot para soporte -->
     <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
     <script src="https://files.bpcontent.cloud/2025/04/09/03/20250409031905-WE53XYZZ.js"></script>
     </body>
